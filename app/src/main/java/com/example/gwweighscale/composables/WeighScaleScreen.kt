@@ -94,7 +94,7 @@ fun WeighScaleScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .verticalScroll(scrollState)
-                .padding(top = if (isTablet) 80.dp else 56.dp) // Adjusted top padding for the app bar space
+                .padding(top = if (isTablet) 10.dp else 10.dp) // Adjusted top padding for the app bar space
         ) {
             // Add the CustomAppBar at the top
             CustomAppBar(
