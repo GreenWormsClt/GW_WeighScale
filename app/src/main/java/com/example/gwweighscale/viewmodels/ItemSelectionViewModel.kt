@@ -1,4 +1,4 @@
-package com.example.gwweighscale.viewmodels
+/*package com.example.gwweighscale.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
@@ -44,3 +44,49 @@ class ItemSelectionViewModel : ViewModel() {
         _toastMessage.value = "Item ${item.name} added successfully!"
     }
 }
+*/
+package com.example.gwweighscale.viewmodels
+
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.MutableLiveData
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import com.example.gwweighscale.Repository.ItemRepository
+import com.example.gwweighscale.Rooms.Database.AppDatabase
+import com.example.gwweighscale.Rooms.Entities.Item
+import kotlinx.coroutines.launch
+
+
+class ItemSelectionViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository: ItemRepository
+
+    val allItems: LiveData<List<Item>>
+
+    init {
+        // Initialize database and repository
+        val itemDao = AppDatabase.getDatabase(application).itemDao()
+        repository = ItemRepository(itemDao)
+        allItems = repository.allItems
+    }
+
+    fun insert(item: Item) = viewModelScope.launch {
+        repository.insert(item)
+    }
+
+    fun insertAll(items: List<Item>) = viewModelScope.launch {
+        repository.insertAll(items)
+    }
+
+    fun addItem(itemId:Int ,itemName: String) = viewModelScope.launch {
+        val newItem = Item(itemId = itemId, itemName = itemName) // Create a new item
+        repository.insert(newItem) // Add to the database
+    }
+
+    fun delete(item: Item) = viewModelScope.launch {
+        repository.delete(item)
+    }
+}
+

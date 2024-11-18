@@ -27,20 +27,32 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gwweighscale.R
 import com.example.gwweighscale.fontfamily.InriaSerif
-import com.example.gwweighscale.models.ItemModel
+import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.ItemSelectionViewModel
+import com.example.gwweighscale.viewmodels.WeighScaleViewModel
 import com.example.gwweighscale.widgets.ConfirmationDialog
+import com.example.gwweighscale.widgets.ItemSelectionAlert
 
 
 @Composable
-fun ItemSelectionScreen(viewModel: ItemSelectionViewModel = viewModel(),onNavigateToWeighScale: () -> Unit) {
+fun ItemSelectionScreen(
+    viewModel: ItemSelectionViewModel = viewModel(),
+    bluetoothViewModel: BluetoothViewModel,
+    onNavigateToWeighScale: () -> Unit,
+    staffName: String
+) {
     val context = LocalContext.current
-    val staffName by viewModel.staffName.observeAsState("")
-    val weight by viewModel.weight.observeAsState("")
+  //  val staffName by viewModel.staffName.observeAsState("")
+    val netweight by bluetoothViewModel.netweight
+    val items by viewModel.allItems.observeAsState(emptyList())
     val scrollState = rememberScrollState()
     var showDialog by remember { mutableStateOf(false) }
+    var showItemPopup by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf("") }
-    val items = remember { viewModel.getItemRows().flatten() }.take(12)// Get item rows from the ViewModel
+
+    // Use mutableStateListOf for dynamic updating of items
+ //   val items = remember { mutableStateListOf<String>().apply { addAll(viewModel.getItemRows().flatten().take(12)) } }
+    val popupItems = remember { listOf("Item1", "Item2", "Item3", "Item4", "Item5","Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7", "Item8", "Item9", "Item10") }
 
     Box(
         modifier = Modifier
@@ -53,27 +65,28 @@ fun ItemSelectionScreen(viewModel: ItemSelectionViewModel = viewModel(),onNaviga
             modifier = Modifier
                 .fillMaxWidth()
                 .verticalScroll(scrollState)
-                .align(Alignment.TopEnd) // Align to the top end
+                .align(Alignment.TopEnd)
         ) {
             Text(
-                text = "STAFF NAME: $staffName",
+                text = "STAFF NAME:  $staffName",
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp // Adjust text size as needed
+                fontSize = 20.sp
             )
-            Spacer(modifier = Modifier.height(4.dp)) // Add space between texts
+            Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "WEIGHT : $weight KG",
+                text = "WEIGHT : $netweight ",
                 fontWeight = FontWeight.Bold,
-                fontSize = 20.sp // Adjust text size as needed
+                fontSize = 20.sp
             )
-            // Choose Item Text
             Text(
                 text = "Choose Item:",
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
-                fontFamily = InriaSerif, // Apply your desired font family
-                modifier = Modifier.align(Alignment.Start) // Align text to the start (left)
+                fontFamily = InriaSerif,
+                modifier = Modifier.align(Alignment.Start)
             )
+            Spacer(modifier = Modifier.height(10.dp))
+
             val chunkedItems = items.chunked(4) // Group items in rows of 4
 
             Column(
@@ -87,7 +100,7 @@ fun ItemSelectionScreen(viewModel: ItemSelectionViewModel = viewModel(),onNaviga
                     ) {
                         rowItems.forEach { item ->
                             ItemButton(
-                                item = item,
+                                item = item.itemName,
                                 onItemSelected = { selectedItemName ->
                                     selectedItem = selectedItemName
                                     showDialog = true
@@ -97,11 +110,10 @@ fun ItemSelectionScreen(viewModel: ItemSelectionViewModel = viewModel(),onNaviga
                     }
                 }
             }
-
         }
         FloatingActionButton(
             onClick = {
-                // Handle add item action
+                showItemPopup = true // Show popup on button click
             },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
@@ -110,27 +122,37 @@ fun ItemSelectionScreen(viewModel: ItemSelectionViewModel = viewModel(),onNaviga
         ) {
             Text("+", color = Color.White, fontSize = 24.sp)
         }
+    }
 
-        if (showDialog) {
-            ConfirmationDialog(
-                selectedItem = selectedItem,
-                onConfirm = {
-                    showDialog = false
-                    viewModel.selectItem(ItemModel(selectedItem))
-                    Toast.makeText(
-                        context,
-                        "Item $selectedItem added successfully!",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                    onNavigateToWeighScale() // Navigate to WeighScaleScreen on confirmation
-                },
-                onDismiss = { showDialog = false }
-            )
-        }
+    if (showDialog) {
+        ConfirmationDialog(
+            selectedItem = selectedItem,
+            onConfirm = {
+//                viewModel.addItem(selectedItem)
+                showDialog = false
+                Toast.makeText(
+                    context,
+                    "Item $selectedItem added successfully!",
+                    Toast.LENGTH_SHORT
+                ).show()
+                onNavigateToWeighScale()
+            },
+            onDismiss = { showDialog = false }
+        )
+    }
+    if (showItemPopup) {
+        ItemSelectionAlert(
+            popupItems = popupItems,
+            onItemSelected = { selectedItem ->
+            //    items.add(selectedItem)
+                showItemPopup = false
+            },
+            onDismissRequest = { showItemPopup = false }
+        )
     }
 }
 
-    @Composable
+@Composable
 fun ItemButton(item: String, onItemSelected: (String) -> Unit) {
     Box(
         modifier = Modifier
@@ -150,4 +172,3 @@ fun ItemButton(item: String, onItemSelected: (String) -> Unit) {
         )
     }
 }
-

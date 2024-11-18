@@ -1,20 +1,48 @@
 package com.example.gwweighscale.viewmodels
 
+import android.app.Application
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
+import androidx.compose.ui.platform.LocalContext
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.example.gwweighscale.models.ItemModel
 import com.example.gwweighscale.models.PopupData
 import com.example.gwweighscale.models.TareModel
 import androidx.lifecycle.viewModelScope
 import com.example.essaeweighingscale_2p00.EssaeWeighingScale
+import com.example.gwweighscale.Repository.ItemRepository
+import com.example.gwweighscale.Repository.StaffRepository
+import com.example.gwweighscale.Rooms.Database.AppDatabase
+import com.example.gwweighscale.Rooms.Entities.Item
+import com.example.gwweighscale.Rooms.Entities.Staff
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class WeighScaleViewModel : ViewModel() {
+class WeighScaleViewModel(application: Application) : AndroidViewModel(application) {
+    private val repository: StaffRepository
+    val allStaffs: LiveData<List<Staff>>
 
+    init {
+        val staffDao = AppDatabase.getDatabase(application).staffDao()
+        repository = StaffRepository(staffDao)
+        allStaffs = repository.allStaff
+    }
+
+    private val _rfidMatch = MutableLiveData<Staff?>()
+    val rfidMatch: LiveData<Staff?> = _rfidMatch
+
+    fun validateRfidAndFetchStaffName(rfid: String): String? {
+        val staff = allStaffs.value?.find { it.rfid == rfid }
+        _rfidMatch.postValue(staff)
+        return staff?.userName
+    }
     // MutableState for the weight
     private val _weight = mutableStateOf("0.00")
     val weight: State<String> = _weight
@@ -43,25 +71,6 @@ class WeighScaleViewModel : ViewModel() {
         )
     )
     val trolleyList: State<List<TareModel>> = _trolleyList
-
-    private val _rfidTag = MutableStateFlow("")
-    val rfidTag: StateFlow<String> = _rfidTag
-
-
-    // Function to handle RFID scanning
-    fun onRfidScanned(tag: String, onNavigateToItemSelection: () -> Unit) {
-        viewModelScope.launch {
-            _rfidTag.emit(tag)
-            if (tag.isNotEmpty()) {
-                onNavigateToItemSelection()  // Navigate to item selection
-            }
-        }
-    }
-
-    fun updateRfidTag(newTag: String) {
-        _rfidTag.value = newTag
-    }
-
 
     // Function to handle Save button click
     fun onSaveClick() {
@@ -106,27 +115,5 @@ class WeighScaleViewModel : ViewModel() {
 
         )
     }
-    //    // Function to connect to the Essae Scale via Bluetooth and get weight
-//    fun getWeight(bluetoothAddress: String) {
-//        viewModelScope.launch {
-//            try {
-//                // Connect to the Essae Scale via Bluetooth
-//                val connectionResult = essaeScale.EssaeScale_MapSettings("BLUETOOTH", bluetoothAddress, 0)
-//
-//                if (connectionResult == "Connected") {
-//                    // Successfully connected, now get the weight
-//                    val weightResult = essaeScale.EssaeScale_GetWeight("BLUETOOTH", bluetoothAddress, 0)
-//                    _weight.value = "$weightResult KG"
-//                } else {
-//                    // Handle failed connection
-//                    _weight.value = "0.00"
-//                }
-//            } catch (e: Exception) {
-//                // Handle any exceptions (e.g., connection issues or Bluetooth errors)
-//                _weight.value = "Error: ${e.message}"
-//            }
-//        }
-//    }
-
 
 }

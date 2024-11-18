@@ -52,6 +52,8 @@ fun CustomTextField(
                 focusedLabelColor = labelColor, // Set focused label color to GWGreen
                 unfocusedLabelColor = labelColor // Set unfocused label color to GWGreen
             ),
+            singleLine = true, // Add this line
+            textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black), // Add this line
             keyboardOptions = KeyboardOptions.Default.copy(
                 imeAction = ImeAction.Done
             ),

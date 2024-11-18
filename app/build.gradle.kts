@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.jetbrains.kotlin.android)
     alias(libs.plugins.google.gms.google.services)
+    id("kotlin-kapt")
 }
 
 android {
@@ -52,45 +53,47 @@ android {
 
 dependencies {
     implementation(libs.androidx.tools.core)
-    dependencies {
-        // Core AndroidX libraries
-        implementation(libs.androidx.core.ktx)
-        implementation(libs.androidx.lifecycle.runtime.ktx)
-        implementation(libs.androidx.activity.compose)
-        implementation("androidx.core:core-splashscreen:1.0.1")
+    // Core AndroidX libraries
+    implementation(libs.androidx.core.ktx)
+    implementation(libs.androidx.lifecycle.runtime.ktx)
+    implementation(libs.androidx.activity.compose)
+    implementation("androidx.core:core-splashscreen:1.0.1")
 
-        // Jetpack Compose dependencies
-        implementation(platform(libs.androidx.compose.bom))
-        implementation(libs.androidx.ui)
-        implementation(libs.androidx.ui.graphics)
-        implementation(libs.androidx.ui.tooling.preview)
-        implementation(libs.androidx.material3)
-        implementation(libs.androidx.navigation.compose)
-        implementation(libs.androidx.runtime.livedata)
-        implementation("androidx.compose.material:material:1.0.5")
-        implementation("androidx.compose.ui:ui:1.0.5")
-        implementation("androidx.compose.foundation:foundation:1.0.5")
+    // Jetpack Compose dependencies
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.ui)
+    implementation(libs.androidx.ui.graphics)
+    implementation(libs.androidx.ui.tooling.preview)
+    implementation(libs.androidx.material3)
+    implementation(libs.androidx.navigation.compose)
+    implementation(libs.androidx.runtime.livedata)
+    implementation("androidx.compose.material:material:1.0.5")
+    implementation("androidx.compose.ui:ui:1.0.5")
+    implementation("androidx.compose.foundation:foundation:1.0.5")
 
-        // Firebase dependencies
-        implementation(libs.firebase.auth)
-        implementation("com.google.firebase:firebase-analytics")
-        implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
+    // Firebase dependencies
+    implementation(libs.firebase.auth)
+    implementation("com.google.firebase:firebase-analytics")
+    implementation(platform("com.google.firebase:firebase-bom:33.2.0"))
 
-        // Testing dependencies
-        testImplementation(libs.junit)
-        androidTestImplementation(libs.androidx.junit)
-        androidTestImplementation(libs.androidx.espresso.core)
-        androidTestImplementation(platform(libs.androidx.compose.bom))
-        androidTestImplementation(libs.androidx.ui.test.junit4)
-        debugImplementation(libs.androidx.ui.tooling)
-        debugImplementation(libs.androidx.ui.test.manifest)
+    // Testing dependencies
+    testImplementation(libs.junit)
+    androidTestImplementation(libs.androidx.junit)
+    androidTestImplementation(libs.androidx.espresso.core)
+    androidTestImplementation(platform(libs.androidx.compose.bom))
+    androidTestImplementation(libs.androidx.ui.test.junit4)
+    debugImplementation(libs.androidx.ui.tooling)
+    debugImplementation(libs.androidx.ui.test.manifest)
 
-        // Kotlin Scripting
-        implementation(kotlin("script-runtime"))
-        implementation(files("libs/essaeweighingscale_2p00-release.aar"))
+    // Kotlin Scripting
+    implementation(kotlin("script-runtime"))
+    implementation(files("libs/essaeweighingscale_2p00-release.aar"))
+    implementation("androidx.room:room-runtime:2.5.1")
+    kapt("androidx.room:room-compiler:2.5.1")
+    implementation("androidx.room:room-ktx:2.5.1")
 
-
-    }
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.6.4")
 
 
 }

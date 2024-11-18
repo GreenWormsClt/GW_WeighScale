@@ -4,7 +4,7 @@ class LoginValidator {
 
     companion object {
         private const val VALID_MACHINE_CODE = "1"
-        private const val VALID_PASSWORD = "1"
+        private const val VALID_PASSWORD = "2"
         private const val PASSWORD_LENGTH = 1
 
         // Validate Machine Code

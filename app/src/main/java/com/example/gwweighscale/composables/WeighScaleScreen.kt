@@ -1,5 +1,7 @@
 package com.example.gwweighscale.composables
 
+import android.annotation.SuppressLint
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -38,12 +40,17 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.colorspace.ColorSpaces
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.zIndex
@@ -52,13 +59,15 @@ import androidx.core.view.WindowInsetsCompat
 import com.example.gwweighscale.viewmodels.BluetoothViewModel
 
 
+@SuppressLint("ResourceAsColor")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WeighScaleScreen(
+    machineCode: String,
     bluetoothViewModel: BluetoothViewModel,
     viewModel: WeighScaleViewModel = viewModel(),
     onNavigateToLogin: () -> Unit, // Pass the navigation callback to LoginScreen
-    onNavigateToItemSelection: () -> Unit //
+    onNavigateToItemSelection: (String) -> Unit //
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -68,15 +77,20 @@ fun WeighScaleScreen(
     // Accessing the ViewModel states
     val isPopupVisible by viewModel.isPopupVisible
     val popupData by viewModel.popupData
+    val staff by viewModel.allStaffs.observeAsState(emptyList())
     val isTrolleyPopupVisible by viewModel.isTrolleyPopupVisible
     val trolleyList by viewModel.trolleyList
-    val rfidTag by viewModel.rfidTag.collectAsState()
+    val rfidMatch by viewModel.rfidMatch.observeAsState()
+    var rfidTag by remember { mutableStateOf("") }
+    var matchedStaffName by remember { mutableStateOf<String?>(null) }
 
     val focusRequester = remember { FocusRequester() }
     val view = LocalView.current
     val netweight by bluetoothViewModel.netweight
     val time by bluetoothViewModel.time
+    val context = LocalContext.current
     val date by bluetoothViewModel.date
+
 
     LaunchedEffect(Unit) {
         val windowInsetsController = ViewCompat.getWindowInsetsController(view)
@@ -110,25 +124,50 @@ fun WeighScaleScreen(
             )
 
             Spacer(modifier = Modifier.height(if (isTablet) 32.dp else 16.dp))
+            Column(
+                horizontalAlignment = Alignment.Start,
+                modifier = Modifier.fillMaxWidth()
+            ) {
+                Text(
+                    text = "DATE : $date ",
+                    fontSize = if (isTablet) 20.sp else 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = InriaSerif
+                )
+                Spacer(modifier = Modifier.height(if (isTablet) 32.dp else 16.dp))
+                Text(
+                    text = "TIME : $time",
+                    fontSize = if (isTablet) 20.sp else 20.sp,
+                    fontWeight = FontWeight.Bold,
+                    fontFamily = InriaSerif
+                )
+            }
+
+            Spacer(modifier = Modifier.weight(1f))
 
 
             // Removed the Image and its surrounding Column
             Column(modifier = Modifier.fillMaxSize()) {
+                var matchedStaffName by remember { mutableStateOf<String?>(null) }
+
                 TextField(
                     value = rfidTag,
-                    onValueChange = {
-                        viewModel.updateRfidTag(it)
-                        if (it.isNotEmpty()) {
-                            viewModel.onRfidScanned(it, onNavigateToItemSelection)
+                    onValueChange = { inputRfid ->
+                        rfidTag = inputRfid
+                        matchedStaffName = viewModel.validateRfidAndFetchStaffName(inputRfid)
+                        if (matchedStaffName == null) {
+                          //  Toast.makeText(context, "RFID not found", Toast.LENGTH_SHORT).show()
+                        } else {
+                            onNavigateToItemSelection(matchedStaffName!!)
                         }
                     },
                     label = { Text("RFID Tag") },
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
-                        .alpha(0f),
-                    readOnly = true,
-                    enabled = false,
+                       .alpha(1f),
+//                        readOnly = true,
+//                    enabled = false,
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = Color.Transparent
                     ),
@@ -138,8 +177,8 @@ fun WeighScaleScreen(
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
-            }
 
+            }
             Spacer(modifier = Modifier.weight(1f))
 
             Row(
@@ -161,7 +200,7 @@ fun WeighScaleScreen(
                     )
                     Spacer(modifier = Modifier.width(8.dp))  // Adjust the spacing between texts
                     Text(
-                        text = "GWASSET001",
+                        text = machineCode,
                         fontSize = if (isTablet) 24.sp else 16.sp,  // Adjust font size for tablet and phone
                         fontWeight = FontWeight.Bold, // Make the text bold
                         fontFamily = InriaSerif, // Apply the font family
@@ -174,7 +213,7 @@ fun WeighScaleScreen(
                 ) {
                     CircleButton("Save", onClick = {
                         viewModel.onSaveClick()
-                        onNavigateToItemSelection()
+                        // onNavigateToItemSelection()
                     }, isTablet)
                     CircleButton("Tare", onClick = { viewModel.onTareClick() }, isTablet)
                     CircleButton("View", onClick = { viewModel.onViewClick() }, isTablet)
@@ -193,22 +232,23 @@ fun WeighScaleScreen(
                     text = netweight,  // Display time first
                     fontSize = if (isTablet) 40.sp else 40.sp,
                     fontWeight = FontWeight.Bold,
+                    color = colorResource(id = R.color.GWGreen),
                     fontFamily = InriaSerif
                 )
-                Spacer(modifier = Modifier.height(if (isTablet) 32.dp else 16.dp))
-                Text(
-                    text = time,  // Display weight below time
-                    fontSize = if (isTablet) 20.sp else 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = InriaSerif
-                )
-                Spacer(modifier = Modifier.height(if (isTablet) 32.dp else 16.dp))
-                Text(
-                    text = date,  // Display weight below time
-                    fontSize = if (isTablet) 20.sp else 20.sp,
-                    fontWeight = FontWeight.Bold,
-                    fontFamily = InriaSerif
-                )
+//                Spacer(modifier = Modifier.height(if (isTablet) 32.dp else 16.dp))
+//                Text(
+//                    text = time,  // Display weight below time
+//                    fontSize = if (isTablet) 20.sp else 20.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    fontFamily = InriaSerif
+//                )
+//                Spacer(modifier = Modifier.height(if (isTablet) 32.dp else 16.dp))
+//                Text(
+//                    text = date,  // Display weight below time
+//                    fontSize = if (isTablet) 20.sp else 20.sp,
+//                    fontWeight = FontWeight.Bold,
+//                    fontFamily = InriaSerif
+//                )
             }
         }
 
@@ -258,8 +298,10 @@ fun CircleButton(text: String, onClick: () -> Unit, isTablet: Boolean) {
 @Preview
 @Composable
 fun PreviewWeighScaleScreen() {
-    val bluetoothViewModel: BluetoothViewModel = viewModel() // Add BluetoothViewModel instance
+    val bluetoothViewModel: BluetoothViewModel = viewModel()
+    val mockMachineCode = "GWASSET001"// Add BluetoothViewModel instance
     WeighScaleScreen(
+        machineCode = mockMachineCode,
         bluetoothViewModel = bluetoothViewModel,
         onNavigateToLogin = { /* Preview Action */ },
         onNavigateToItemSelection = { /* Preview Action */ }
