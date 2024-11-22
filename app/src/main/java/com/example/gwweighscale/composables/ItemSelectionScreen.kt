@@ -12,6 +12,7 @@ import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -26,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gwweighscale.R
+//import com.example.gwweighscale.Rooms.Entities.ItemReport
 import com.example.gwweighscale.fontfamily.InriaSerif
 import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.ItemSelectionViewModel
@@ -33,38 +35,37 @@ import com.example.gwweighscale.viewmodels.WeighScaleViewModel
 import com.example.gwweighscale.widgets.ConfirmationDialog
 import com.example.gwweighscale.widgets.ItemSelectionAlert
 
-
 @Composable
 fun ItemSelectionScreen(
     viewModel: ItemSelectionViewModel = viewModel(),
-    bluetoothViewModel: BluetoothViewModel,
+    weighviemodel: WeighScaleViewModel = viewModel(),
     onNavigateToWeighScale: () -> Unit,
-    staffName: String
+    staffName: String,
+    trolleyName: String,
+    trolleyWeight: String,
+    netWeight: String
 ) {
     val context = LocalContext.current
-  //  val staffName by viewModel.staffName.observeAsState("")
-    val netweight by bluetoothViewModel.netweight
     val items by viewModel.allItems.observeAsState(emptyList())
-    val scrollState = rememberScrollState()
+
+
+    val displayedItems = remember { items.take(12) } // Always display the first 12 items
+    val selectedItems = remember { mutableStateListOf<String>() } // Dynamically added items
+
     var showDialog by remember { mutableStateOf(false) }
     var showItemPopup by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf("") }
-
-    // Use mutableStateListOf for dynamic updating of items
- //   val items = remember { mutableStateListOf<String>().apply { addAll(viewModel.getItemRows().flatten().take(12)) } }
-    val popupItems = remember { listOf("Item1", "Item2", "Item3", "Item4", "Item5","Item1", "Item2", "Item3", "Item4", "Item5", "Item6", "Item7", "Item8", "Item9", "Item10") }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
             .padding(16.dp)
     ) {
-        // Staff Name and Weight Display
         Column(
             horizontalAlignment = Alignment.End,
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(scrollState)
+                .verticalScroll(rememberScrollState())
                 .align(Alignment.TopEnd)
         ) {
             Text(
@@ -74,10 +75,17 @@ fun ItemSelectionScreen(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "WEIGHT : $netweight ",
+                text = "WEIGHT: $netWeight",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text(
+                text = "TROLLEY: $trolleyName, $trolleyWeight KG",
+                fontWeight = FontWeight.Bold,
+                fontSize = 20.sp
+            )
+            Spacer(modifier = Modifier.height(16.dp))
             Text(
                 text = "Choose Item:",
                 fontSize = 24.sp,
@@ -87,7 +95,11 @@ fun ItemSelectionScreen(
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            val chunkedItems = items.chunked(4) // Group items in rows of 4
+            // Combine fixed items and dynamically added items
+            val allItems = displayedItems.map { it.itemName } + selectedItems
+
+            // Group items into rows of 4
+            val chunkedItems = allItems.chunked(4)
 
             Column(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -98,9 +110,9 @@ fun ItemSelectionScreen(
                         horizontalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        rowItems.forEach { item ->
+                        rowItems.forEach { itemName ->
                             ItemButton(
-                                item = item.itemName,
+                                item = itemName,
                                 onItemSelected = { selectedItemName ->
                                     selectedItem = selectedItemName
                                     showDialog = true
@@ -112,9 +124,7 @@ fun ItemSelectionScreen(
             }
         }
         FloatingActionButton(
-            onClick = {
-                showItemPopup = true // Show popup on button click
-            },
+            onClick = { showItemPopup = true },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .padding(16.dp),
@@ -128,7 +138,6 @@ fun ItemSelectionScreen(
         ConfirmationDialog(
             selectedItem = selectedItem,
             onConfirm = {
-//                viewModel.addItem(selectedItem)
                 showDialog = false
                 Toast.makeText(
                     context,
@@ -140,17 +149,37 @@ fun ItemSelectionScreen(
             onDismiss = { showDialog = false }
         )
     }
+
     if (showItemPopup) {
+        // Filter items to display only the 13th and beyond
+        val popupItems = items.drop(12).map { it.itemName } // Exclude the first 12 items
+
         ItemSelectionAlert(
-            popupItems = popupItems,
-            onItemSelected = { selectedItem ->
-            //    items.add(selectedItem)
+            popupItems = popupItems, // Pass only the 13th and beyond items
+            onItemSelected = { selectedItemName ->
+                // Add the selected item's name to the dynamic list
+                if (selectedItemName !in selectedItems) {
+                    selectedItems.add(selectedItemName)
+                    Toast.makeText(
+                        context,
+                        "Item $selectedItemName added to the list!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    Toast.makeText(
+                        context,
+                        "Item $selectedItemName is already added!",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                }
                 showItemPopup = false
             },
             onDismissRequest = { showItemPopup = false }
         )
     }
 }
+
+
 
 @Composable
 fun ItemButton(item: String, onItemSelected: (String) -> Unit) {

@@ -5,9 +5,8 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "weigh_scale")
 data class WeighScale(
-    @PrimaryKey(autoGenerate = true) val machineId: Int = 0,
+    @PrimaryKey val machineId: Int,
     val plantId: Int,
     val mrfId: Int,
     val machineCode: String
 )
-

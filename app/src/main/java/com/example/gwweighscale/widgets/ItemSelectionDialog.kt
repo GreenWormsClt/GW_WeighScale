@@ -29,7 +29,7 @@ fun ItemSelectionAlert(
     popupItems: List<String>,
     onItemSelected: (String) -> Unit,
     onDismissRequest: () -> Unit,
-    dialogBackgroundColor: Color = Color.Black
+    dialogBackgroundColor: Color = Color.White
 ) {
     var searchText by remember { mutableStateOf("") }
 
@@ -43,19 +43,19 @@ fun ItemSelectionAlert(
             dismissOnClickOutside = true,
             usePlatformDefaultWidth = false
         ),
-        backgroundColor = Color.Transparent,
+        backgroundColor = Color.Transparent, // Keep dialog background transparent
         title = null,
         text = {
             Box(
                 modifier = Modifier
-                    .fillMaxWidth(0.9f)
-                    .heightIn(min = 200.dp, max = 400.dp) // Constrain dialog height
-                    .clip(RoundedCornerShape(12.dp))
-                    .background(dialogBackgroundColor)
-                    .padding(16.dp)
+                    .fillMaxWidth(0.9f) // Limit dialog width to 90% of the screen
+                    .heightIn(max = 400.dp) // Constrain the height of the dialog
+                    .clip(RoundedCornerShape(12.dp)) // Rounded corners
+                    .background(dialogBackgroundColor) // Apply the custom background color
+                    .padding(16.dp) // Add padding inside the dialog
             ) {
                 Column(
-                    modifier = Modifier.fillMaxSize()
+                    modifier = Modifier.fillMaxWidth()
                 ) {
                     // Title and Close Icon
                     Row(
@@ -99,8 +99,8 @@ fun ItemSelectionAlert(
                     Box(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .weight(1f) // Assign weight to allow scrolling in a constrained height
-                            .verticalScroll(rememberScrollState())
+                            .heightIn(min = 100.dp, max = 250.dp) // Limit the height of the scrollable area
+                            .verticalScroll(rememberScrollState()) // Enable scrolling only for items
                     ) {
                         Column {
                             filteredItems.forEach { item ->
@@ -109,7 +109,7 @@ fun ItemSelectionAlert(
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .padding(vertical = 4.dp)
-                                        .background(Color.Gray, RoundedCornerShape(8.dp))
+                                        .background(Color(0xFF026163), RoundedCornerShape(8.dp))
                                         .clickable {
                                             onItemSelected(item)
                                         }
@@ -128,4 +128,6 @@ fun ItemSelectionAlert(
         buttons = {}
     )
 }
+
+
 

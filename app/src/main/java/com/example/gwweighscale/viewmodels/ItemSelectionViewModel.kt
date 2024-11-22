@@ -53,13 +53,49 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import com.example.gwweighscale.Repository.ItemReportRepository
 import com.example.gwweighscale.Repository.ItemRepository
 import com.example.gwweighscale.Rooms.Database.AppDatabase
 import com.example.gwweighscale.Rooms.Entities.Item
+import com.example.gwweighscale.Rooms.Entities.ItemReport
 import kotlinx.coroutines.launch
 
 
 class ItemSelectionViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val reportRepository: ItemReportRepository
+    val allReports: LiveData<List<ItemReport>>
+
+    init {
+        val reportDao = AppDatabase.getDatabase(application).itemReportDao()
+        reportRepository = ItemReportRepository(reportDao)
+        allReports = reportRepository.allReports
+    }
+
+    fun insertReport(
+        reportId: Int,
+        mrfId: Int,
+        plantId: Int,
+        machineId: Int,
+        weight: Double,
+        userId: Int,
+        itemId: Int
+    ) {
+        val newReport = ItemReport(
+            reportId = reportId,
+            mrfId = mrfId,
+            plantId = plantId,
+            machineId = machineId,
+            weight = weight,
+            userId = userId,
+            itemId = itemId
+        )
+
+        // Launch on a background thread using viewModelScope
+        viewModelScope.launch {
+            reportRepository.insertReport(newReport)
+        }
+    }
 
     private val repository: ItemRepository
 
@@ -88,5 +124,6 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
     fun delete(item: Item) = viewModelScope.launch {
         repository.delete(item)
     }
+
 }
 

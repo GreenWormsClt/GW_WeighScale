@@ -1,33 +1,24 @@
-//package com.example.gwweighscale.Repository
-//
-//import com.example.gwweighscale.Rooms.Dao.BalingMachineDao
-//import com.example.gwweighscale.Rooms.Entities.BalingMachine
-//import kotlinx.coroutines.Dispatchers
-//import kotlinx.coroutines.withContext
-//
-//class BalingMachineRepository(private val dao: BalingMachineDao) {
-//
-//    suspend fun insertBalingMachine(machine: BalingMachine) {
-//        withContext(Dispatchers.IO) {
-//            dao.insert(machine)
-//        }
-//    }
-//
-//    suspend fun getAllMachines(): List<BalingMachine> {
-//        return withContext(Dispatchers.IO) {
-//            dao.getAllBalingMachines()
-//        }
-//    }
-//
-//    suspend fun getMachineById(id: Int): BalingMachine? {
-//        return withContext(Dispatchers.IO) {
-//            dao.getBalingMachineById(id)
-//        }
-//    }
-//
-//    suspend fun deleteMachine(machine: BalingMachine) {
-//        withContext(Dispatchers.IO) {
-//            dao.deleteBalingMachine(machine)
-//        }
-//    }
-//}
+package com.example.gwweighscale.Repository
+
+import androidx.lifecycle.LiveData
+import com.example.gwweighscale.Rooms.Dao.WeighScaleDao
+import com.example.gwweighscale.Rooms.Entities.Item
+import com.example.gwweighscale.Rooms.Entities.WeighScale
+
+
+class WeighScaleRepository(private val weighScaleDao: WeighScaleDao) {
+
+    val allWeighScales: LiveData<List<WeighScale>> = weighScaleDao.getAllWeighScales()
+
+    suspend fun insertWeighScale(weighScale: WeighScale) {
+        weighScaleDao.insertWeighScale(weighScale)
+    }
+
+    suspend fun insertWeighScales(weighScales: List<WeighScale>) {
+        weighScaleDao.insertWeighScales(weighScales)
+    }
+
+    suspend fun deleteWeighScale(weighScale: WeighScale) {
+        weighScaleDao.deleteWeighScale(weighScale)
+    }
+}

@@ -32,7 +32,7 @@ class BluetoothViewModel(application: Application) : AndroidViewModel(applicatio
 
     val status = mutableStateOf("Status: Disconnected")
     val weightsData = mutableStateOf("Waiting for data...")
-    val netweight = mutableStateOf("Waiting...")
+    val netweight = mutableStateOf("00.00")
     val date = mutableStateOf("")
     val time = mutableStateOf("")
     private val macAddress = "00:04:3E:97:7C:61" // Replace with your device MAC address

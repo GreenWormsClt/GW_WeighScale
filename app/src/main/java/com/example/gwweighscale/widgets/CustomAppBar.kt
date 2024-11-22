@@ -90,6 +90,20 @@ fun CustomAppBar(
                 DropdownMenuItem(
                     text = {
                         Text(
+                            text = "Add Trolley",
+                            fontFamily = fontFamily,
+                            fontWeight = FontWeight.Normal,
+                            fontSize = 16.sp
+                        )
+                    },
+                    onClick = {
+                        expanded = false
+                        onExitClick()
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
+                        Text(
                             text = "Logout",
                             fontFamily = fontFamily,
                             fontWeight = FontWeight.Normal,
@@ -115,6 +129,7 @@ fun CustomAppBar(
                         onExitClick()
                     }
                 )
+
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

@@ -21,6 +21,7 @@ import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.LoginViewModel
 import com.example.gwweighscale.viewmodels.WeighScaleViewModel
 import androidx.navigation.navArgument
+import com.example.gwweighscale.Rooms.Entities.Tare
 
 
 class MainActivity : ComponentActivity() {
@@ -56,7 +57,7 @@ fun MyApp(
     bluetoothViewModel: BluetoothViewModel,
     loginViewModel: LoginViewModel,
     weighScaleViewModel: WeighScaleViewModel,
-    ) {
+) {
     val navController = rememberNavController()
     WeighScaleApp(
         navController = navController,
@@ -81,8 +82,8 @@ fun WeighScaleApp(
             LoginScreen(
                 viewModel = loginViewModel,
                 onLoginSuccess = {
-                navController.navigate("home")
-            })
+                    navController.navigate("home")
+                })
         }
         composable("home") {
             WeighScaleScreen(
@@ -90,33 +91,41 @@ fun WeighScaleApp(
                 bluetoothViewModel = bluetoothViewModel,
                 onNavigateToLogin = {
                     navController.navigate("login") {
-                        popUpTo(navController.graph.startDestinationId) {
-                            inclusive = true
-                        }
+                        popUpTo(navController.graph.startDestinationId) { inclusive = true }
                     }
                 },
-                onNavigateToItemSelection = { staffName ->
-                    navController.navigate("item/$staffName")
+                onNavigateToItemSelection = { staffName, trolleyName, trolleyWeight, netWeight ->
+                    // Navigate to ItemSelectionScreen with all required arguments
+                    navController.navigate("item/$staffName/$trolleyName/$trolleyWeight/$netWeight")
                 }
             )
         }
+        // Item Selection Screen
         composable(
-            route = "item/{staffName}",
-            arguments = listOf(navArgument("staffName") { type = NavType.StringType })
+            route = "item/{staffName}/{trolleyName}/{trolleyWeight}/{netWeight}",
+            arguments = listOf(
+                navArgument("staffName") { type = NavType.StringType },
+                navArgument("trolleyName") { type = NavType.StringType },
+                navArgument("trolleyWeight") { type = NavType.StringType },
+                navArgument("netWeight") { type = NavType.StringType }
+            )
         ) { backStackEntry ->
             val staffName = backStackEntry.arguments?.getString("staffName") ?: "Unknown"
+            val trolleyName = backStackEntry.arguments?.getString("trolleyName") ?: "Unknown"
+            val trolleyWeight = backStackEntry.arguments?.getString("trolleyWeight") ?: "Unknown"
+            val netWeight = backStackEntry.arguments?.getString("netWeight") ?: "Unknown"
+
             ItemSelectionScreen(
-                bluetoothViewModel = bluetoothViewModel,
                 onNavigateToWeighScale = {
                     navController.navigate("home") {
                         popUpTo("home") { inclusive = true }
                     }
                 },
-                staffName = staffName
+                staffName = staffName,
+                trolleyName = trolleyName,
+                trolleyWeight = trolleyWeight,
+                netWeight = netWeight
             )
         }
     }
-
 }
-
-

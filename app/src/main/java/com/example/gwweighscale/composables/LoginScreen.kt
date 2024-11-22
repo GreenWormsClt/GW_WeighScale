@@ -76,7 +76,11 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
                 modifier = Modifier
                     .weight(1f)
                     .fillMaxHeight()
-                    .padding(10.dp)
+                    .padding(
+                        WindowInsets
+                            .ime // Listen to IME (keyboard) insets
+                            .asPaddingValues()
+                    )
                     .background(colorResource(id = R.color.white)),
 
                 contentAlignment = Alignment.Center
@@ -108,9 +112,7 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
                         isError = !viewModel.isMachineCodeValid.value,
                         errorMessage = viewModel.machineCodeErrorMessage.value,
                         borderColor = colorResource(id = R.color.GWGreen) ,
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Next),
                         keyboardActions = KeyboardActions(
                             onNext = { focusManager.moveFocus(FocusDirection.Down) }
                         )
@@ -128,11 +130,9 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
                         errorMessage = viewModel.passwordErrorMessage.value,
                         borderColor = colorResource(id = R.color.GWGreen), // Set border color to GWGreen
                         labelColor = colorResource(id = R.color.GWGreen),
-                        keyboardOptions = KeyboardOptions.Default.copy(
-                            imeAction = ImeAction.Next
-                        ),
+                        keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
                         keyboardActions = KeyboardActions(
-                            onNext = { focusManager.moveFocus(FocusDirection.Down) }
+                            onDone = { focusManager.clearFocus() }
                         )
                     )
 

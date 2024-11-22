@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.material.IconButton
 import androidx.compose.material.icons.Icons
@@ -20,13 +21,14 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gwweighscale.fontfamily.InriaSerif
-import com.example.gwweighscale.models.TareModel
+import com.example.gwweighscale.Rooms.Entities.Tare
 import kotlinx.coroutines.launch
 
 @Composable
 fun TrolleyListPopup(
-    trolleyList: List<TareModel>,
+    trolleyList: List<Tare>,
     onDismiss: () -> Unit,
+    onTrolleySelected: (Tare) -> Unit,
     modifier: Modifier = Modifier
 ) {
     val context = LocalContext.current
@@ -34,8 +36,8 @@ fun TrolleyListPopup(
 
     Box(
         modifier = modifier
-            .requiredWidthIn(min = 250.dp, max = 350.dp)  // Minimum and maximum width
-            .wrapContentHeight()  // Adjusts height based on content
+            .requiredWidthIn(min = 250.dp, max = 350.dp)
+            .wrapContentHeight()
             .padding(16.dp)
             .background(
                 color = Color.White,
@@ -46,24 +48,24 @@ fun TrolleyListPopup(
             modifier = Modifier.padding(16.dp)
         ) {
             LazyColumn(
-                modifier = Modifier
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxWidth(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                items(trolleyList.size) { index ->
-                    val trolley = trolleyList[index]
+                items(trolleyList) { trolley ->
                     Text(
-                        text = "${trolley.id} ${trolley.weight} KG",
+                        text = "${trolley.name} ${trolley.weight} KG",
                         fontSize = 32.sp,
                         fontWeight = FontWeight.Normal,
                         fontFamily = InriaSerif,
                         modifier = Modifier
                             .padding(vertical = 8.dp)
                             .clickable {
+                                onTrolleySelected(trolley) // Pass the selected trolley to the callback
+                                onDismiss()
                                 coroutineScope.launch {
                                     Toast.makeText(
                                         context,
-                                        "Selected ${trolley.id} with weight ${trolley.weight} KG",
+                                        "Selected ${trolley.name} with weight ${trolley.weight} KG",
                                         Toast.LENGTH_SHORT
                                     ).show()
                                 }
@@ -75,8 +77,7 @@ fun TrolleyListPopup(
             Spacer(modifier = Modifier.height(28.dp))
             IconButton(
                 onClick = onDismiss,
-                modifier = Modifier
-                    .align(Alignment.End),
+                modifier = Modifier.align(Alignment.End),
             ) {
                 Icon(Icons.Default.Close, contentDescription = "Close")
             }

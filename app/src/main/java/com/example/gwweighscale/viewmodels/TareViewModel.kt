@@ -1,19 +1,26 @@
 package com.example.gwweighscale.viewmodels
 
+import android.app.Application
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.mutableStateListOf
-import androidx.lifecycle.ViewModel
-import com.example.gwweighscale.models.TareModel
+import androidx.lifecycle.AndroidViewModel
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.viewModelScope
+import com.example.gwweighscale.Repository.TareRepository
+import com.example.gwweighscale.Rooms.Database.AppDatabase
+import com.example.gwweighscale.Rooms.Entities.Tare
+import kotlinx.coroutines.launch
 
-class TareViewModel : ViewModel() {
+class TareViewModel(application: Application) : AndroidViewModel(application) {
+
+    private val repository: TareRepository
+    val allTares: LiveData<List<Tare>> // Expose Tare data as LiveData
     val isTrolleyPopupVisible = mutableStateOf(false)
-    val trolleyList = mutableStateListOf(
-        TareModel(id = "Trolley1", weight = 1600),
-        TareModel(id = "Trolley2", weight = 1700),
-        TareModel(id = "Trolley3", weight = 1800),
-        TareModel(id = "Trolley1", weight = 1600),
-        TareModel(id = "Trolley2", weight = 1700),
-    )
+
+    init {
+        val tareDao = AppDatabase.getDatabase(application).tareDao()
+        repository = TareRepository(tareDao)
+        allTares = repository.allTares
+    }
 
     fun onTareClick() {
         isTrolleyPopupVisible.value = true
@@ -21,5 +28,12 @@ class TareViewModel : ViewModel() {
 
     fun onTrolleyPopupClose() {
         isTrolleyPopupVisible.value = false
+    }
+
+    // Insert default data (optional)
+    fun insertDefaultTares(defaultTares: List<Tare>) {
+        viewModelScope.launch {
+            repository.insertTares(defaultTares)
+        }
     }
 }
