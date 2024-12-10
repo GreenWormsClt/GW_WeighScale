@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.room.Database
 import androidx.room.Room
 import androidx.room.RoomDatabase
+import androidx.room.migration.Migration
+import androidx.sqlite.db.SupportSQLiteDatabase
 import com.example.gwweighscale.rooms.dao.ItemDao
 import com.example.gwweighscale.rooms.dao.ItemReportDao
 import com.example.gwweighscale.rooms.dao.StaffDao
@@ -15,7 +17,7 @@ import com.example.gwweighscale.rooms.entities.Staff
 import com.example.gwweighscale.rooms.entities.Tare
 import com.example.gwweighscale.rooms.entities.WeighScale
 
-@Database(entities = [Item::class, Staff::class, Tare::class, WeighScale::class, ItemReport::class], version = 5, exportSchema = false)
+@Database(entities = [Item::class, Staff::class, Tare::class, WeighScale::class, ItemReport::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun itemDao(): ItemDao
     abstract fun staffDao(): StaffDao
@@ -33,9 +35,17 @@ abstract class AppDatabase : RoomDatabase() {
                     context.applicationContext,
                     AppDatabase::class.java,
                     "app_database"
-                ).build()
+                ) .addMigrations(MIGRATION_5_6)
+                    .build()
                 INSTANCE = instance
                 instance
+            }
+        }
+        private val MIGRATION_5_6 = object : Migration(5, 6) {
+            override fun migrate(database: SupportSQLiteDatabase) {
+                // Add `date` and `time` columns to the `item_reports` table
+                database.execSQL("ALTER TABLE item_reports ADD COLUMN date TEXT NOT NULL DEFAULT ''")
+                database.execSQL("ALTER TABLE item_reports ADD COLUMN time TEXT NOT NULL DEFAULT ''")
             }
         }
     }

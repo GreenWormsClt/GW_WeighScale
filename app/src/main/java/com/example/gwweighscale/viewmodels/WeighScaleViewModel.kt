@@ -88,32 +88,25 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
     val isTrolleyPopupVisible: State<Boolean> = _isTrolleyPopupVisible
 
 
-    // Function to handle View button click
     fun onViewClick() {
-        fetchPopupData()
+        fetchReportDetails() // Fetch report details when View is clicked
         _isPopupVisible.value = true
     }
 
-    // Function to handle cross button click and hide the popup
     fun onPopupClose() {
         _isPopupVisible.value = false
     }
 
-    // Function to fetch data for the popup
-    private fun fetchPopupData() {
-        _popupData.value = listOf(
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG"),
-            PopupData("RAMU", "13/08/2024", "13:54:22", "1040.50 KG")
+    private val _reportDetails = MutableLiveData<List<PopupData>>() // Added
+    val reportDetails: LiveData<List<PopupData>> = _reportDetails // Added
 
-        )
+    fun fetchReportDetails() {
+        viewModelScope.launch {
+            AppDatabase.getDatabase(getApplication<Application>()).itemReportDao().getReportDetails()
+                .observeForever { details ->
+                    _reportDetails.value = details
+                }
+        }
     }
 
 

@@ -14,4 +14,12 @@ class TareRepository(private val tareDao: TareDao) {
     suspend fun insertTares(tares: List<Tare>) {
         tareDao.insertTares(tares)
     }
+    suspend fun getMaxTareId(): Int? {
+        return tareDao.getMaxTareId()
+    }
+
+    suspend fun deleteTare(tare: Tare) {
+        tareDao.deleteTare(tare)
+    }
+
 }

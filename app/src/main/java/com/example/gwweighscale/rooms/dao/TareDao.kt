@@ -2,6 +2,7 @@ package com.example.gwweighscale.rooms.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
+import androidx.room.Delete
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
@@ -16,5 +17,11 @@ interface TareDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertTares(tares: List<Tare>) // Insert a list of Tares
+
+    @Query("SELECT MAX(tareId) FROM tares")
+    suspend fun getMaxTareId(): Int?
+
+    @Delete
+    suspend fun deleteTare(tare: Tare) // Delete a specific trolley
 
 }

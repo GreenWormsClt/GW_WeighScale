@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gwweighscale.fontfamily.InriaSerif
+import com.example.gwweighscale.rooms.entities.Tare
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -42,6 +43,7 @@ fun CustomAppBar(
     onExitClick: () -> Unit,
     onNavigateToLogin: () -> Unit, // Add a navigation callback for login
     fontFamily: FontFamily = InriaSerif,
+    onTrolleyAdded: (Tare) -> Unit,
     imageRes: Int,
     bluetoothIcon: Int,
     modifier: Modifier = Modifier
@@ -148,6 +150,8 @@ fun CustomAppBar(
         AddTrolleyDialog(
             onDismiss = { showAddTrolleyDialog = false },
             onSave = { name, weight ->
+                val trolley = Tare(tareId = System.currentTimeMillis().toInt(), name = name, weight = weight.toDouble())
+                onTrolleyAdded(trolley) // Pass the added trolley back to the parent
                 showAddTrolleyDialog = false
                 // Handle save action, e.g., add to database or state
                 println("Trolley Name: $name, Trolley Weight: $weight KG")

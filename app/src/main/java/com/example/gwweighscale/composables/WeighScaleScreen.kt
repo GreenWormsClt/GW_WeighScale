@@ -124,6 +124,9 @@ fun WeighScaleScreen(
             CustomAppBar(
                 bluetoothIcon = R.drawable.img,
                 imageRes = R.drawable.gwicon,
+                onTrolleyAdded = { trolley ->
+                    tareViewModel.insertTare(trolley) // Add the trolley to the database
+                },
                 title = "GW Weigh Scale",
                 iconRes = R.drawable.threedots,
                 onLogoutClick = {
@@ -296,7 +299,7 @@ fun WeighScaleScreen(
         // Display the popups based on ViewModel state
         if (isPopupVisible) {
             PopupScreen(
-                popupData = popupData,
+                reportDetails = viewModel.reportDetails.observeAsState(emptyList()).value,
                 onDismiss = { viewModel.onPopupClose() }
             )
         }
@@ -305,6 +308,9 @@ fun WeighScaleScreen(
             TrolleyListPopup(
                 trolleyList = trolleyList,
                 onDismiss = { tareViewModel.onTrolleyPopupClose() },
+                onTrolleyDeleted = { trolley ->
+                    tareViewModel.deleteTare(trolley)
+                },
                 onTrolleySelected = { selectedTrolleyItem ->
                     selectedTrolley = selectedTrolleyItem // Update selected trolley
                 },

@@ -40,5 +40,7 @@ data class ItemReport(
     val machineId: Int,
     val weight: Double,
     val userId: Int,
-    val itemId: Int
+    val itemId: Int,
+    val date: String,
+    val time: String,
 )

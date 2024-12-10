@@ -76,7 +76,9 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
         machineId: Int,
         weight: Double,
         userId: Int,
-        itemId: Int
+        itemId: Int,
+        date: String,
+        time: String
     ) {
         val newReport = ItemReport(
             mrfId = mrfId,
@@ -84,7 +86,9 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
             machineId = machineId,
             weight = weight,
             userId = userId,
-            itemId = itemId
+            itemId = itemId,
+            date = date,
+            time = time
         )
 
         // Launch on a background thread using viewModelScope

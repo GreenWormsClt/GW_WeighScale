@@ -48,18 +48,14 @@ object DataInitializer {
 
             val defaultStaff = listOf(
                 Staff(1, "VISMAYA C", "4260699411"),
-                Staff(2, "KISHORE", "12345")
+                Staff(2, "KISHORE", "12345"),
+                Staff(3, "RAMU", "13455"),
             )
             staffDao.insertAll(defaultStaff)
 
             val defaultTares = listOf(
-                Tare(1, "Trolley1", 0.123),
-                Tare(2, "Trolley2", 1.120),
-                Tare(3, "Trolley3", 2.010),
-                Tare(4, "Trolley4", 0.050),
-                Tare(5, "Trolley5", 0.500),
-                Tare(6, "Trolley6", 1.800),
-                Tare(7, "Trolley7", 2.900),
+                Tare(1, "Trolley1", 0.123)
+
             )
             database.tareDao().insertTares(defaultTares)
             val defaultWeighScales = listOf(

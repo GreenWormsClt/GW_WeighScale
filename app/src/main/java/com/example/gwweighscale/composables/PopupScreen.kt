@@ -1,7 +1,10 @@
 package com.example.gwweighscale.composables
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -23,7 +26,7 @@ import com.example.gwweighscale.fontfamily.InriaSerif
 import com.example.gwweighscale.models.PopupData
 
 @Composable
-fun PopupScreen(popupData: List<PopupData>, onDismiss: () -> Unit) {
+fun PopupScreen(reportDetails: List<PopupData>, onDismiss: () -> Unit) {
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -32,112 +35,161 @@ fun PopupScreen(popupData: List<PopupData>, onDismiss: () -> Unit) {
             shape = RoundedCornerShape(20.dp),
             modifier = Modifier
                 .size(width = 924.dp, height = 609.dp)
-                .padding(16.dp)
+                .padding(16.dp),
+            color = androidx.compose.material3.MaterialTheme.colorScheme.surface
         ) {
             Box(
                 modifier = Modifier
-                    .fillMaxSize(),
+                    .fillMaxSize()
+                    .padding(16.dp),
                 contentAlignment = Alignment.TopCenter
             ) {
                 Column(
                     modifier = Modifier
-                        .padding(16.dp)
-                        .fillMaxWidth()
-                        .align(Alignment.Center),
+                        .fillMaxSize()
+                        .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Title
+                    Text(
+                        text = "Report Details",
+                        fontSize = 24.sp,
+                        fontWeight = FontWeight.Bold,
+                        fontFamily = InriaSerif,
+                        modifier = Modifier.padding(bottom = 16.dp),
+                        textAlign = TextAlign.Center
+                    )
+
                     // Table Header
                     Row(
-                        horizontalArrangement = Arrangement.SpaceBetween,
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(bottom = 8.dp)
+                            .padding(vertical = 8.dp)
+                            .background(
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.primary.copy(
+                                    alpha = 0.1f
+                                ),
+                                shape = RoundedCornerShape(8.dp)
+                            )
+                            .padding(16.dp)
                     ) {
                         Text(
-                            text = "Staff Name",
+                            "Staff Name",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            fontFamily = InriaSerif,
+                            fontSize = 18.sp,
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = "Date",
+                            "Item Name",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            fontFamily = InriaSerif,
+                            fontSize = 18.sp,
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = "Time",
+                            "Weight (Kg)",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            fontFamily = InriaSerif,
+                            fontSize = 18.sp,
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center
                         )
                         Text(
-                            text = "Weight(Kg)",
+                            "Date",
                             fontWeight = FontWeight.Bold,
-                            fontSize = 20.sp,
-                            fontFamily = InriaSerif,
+                            fontSize = 18.sp,
+                            modifier = Modifier.weight(1f),
+                            textAlign = TextAlign.Center
+                        )
+                        Text(
+                            "Time",
+                            fontWeight = FontWeight.Bold,
+                            fontSize = 18.sp,
                             modifier = Modifier.weight(1f),
                             textAlign = TextAlign.Center
                         )
                     }
+
                     Spacer(modifier = Modifier.height(8.dp))
 
                     // Data Rows
-                    popupData.forEach { data ->
-                        Row(
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .padding(vertical = 10.dp)
-                        ) {
-                            Text(
-                                text = data.staffName,
-                                fontSize = 18.sp,
-                                fontFamily = InriaSerif,
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = data.date,
-                                fontSize = 18.sp,
-                                fontFamily = InriaSerif,
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = data.time,
-                                fontSize = 18.sp,
-                                fontFamily = InriaSerif,
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center
-                            )
-                            Text(
-                                text = data.weight,
-                                fontSize = 18.sp,
-                                fontFamily = InriaSerif,
-                                modifier = Modifier.weight(1f),
-                                textAlign = TextAlign.Center
-                            )
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .weight(1f)
+                            .padding(horizontal = 8.dp)
+                            .verticalScroll(rememberScrollState())
+                    ) {
+                        reportDetails.forEach { detail ->
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 8.dp)
+                                    .background(
+                                        color = androidx.compose.material3.MaterialTheme.colorScheme.surfaceVariant.copy(
+                                            alpha = 0.2f
+                                        ),
+                                        shape = RoundedCornerShape(8.dp)
+                                    )
+                                    .padding(16.dp)
+                            ) {
+                                Text(
+                                    detail.staffName,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.weight(1f),
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    detail.itemName,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.weight(1f),
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    "${detail.weight} Kg",
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.weight(1f),
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    detail.date,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.weight(1f),
+                                    textAlign = TextAlign.Center
+                                )
+                                Text(
+                                    detail.time,
+                                    fontSize = 16.sp,
+                                    modifier = Modifier.weight(1f),
+                                    textAlign = TextAlign.Center
+                                )
+                            }
                         }
-
-                        Spacer(modifier = Modifier.height(8.dp))
                     }
-                }
 
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                IconButton(
-                    onClick = onDismiss,
-                    modifier = Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(8.dp)
-                ) {
-                    Icon(Icons.Default.Close, contentDescription = "Close")
+                    // Close Button
+                    IconButton(
+                        onClick = onDismiss,
+                        modifier = Modifier
+                            .align(Alignment.CenterHorizontally)
+                            .size(48.dp)
+                            .background(
+                                color = androidx.compose.material3.MaterialTheme.colorScheme.error.copy(
+                                    alpha = 0.2f
+                                ),
+                                shape = RoundedCornerShape(24.dp)
+                            )
+                    ) {
+                        Icon(
+                            Icons.Default.Close,
+                            contentDescription = "Close",
+                            tint = androidx.compose.material3.MaterialTheme.colorScheme.error
+                        )
+                    }
                 }
             }
         }

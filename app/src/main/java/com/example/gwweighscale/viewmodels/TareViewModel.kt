@@ -40,7 +40,16 @@ class TareViewModel(application: Application) : AndroidViewModel(application) {
     // Insert a single Tare
     fun insertTare(tare: Tare) {
         viewModelScope.launch {
-            repository.insertTares(listOf(tare))
+            val maxTareId = repository.getMaxTareId() ?: 0 // Get the highest `tareId`
+            val newTare = tare.copy(tareId = maxTareId + 1) // Assign the next available ID
+            repository.insertTares(listOf(newTare))
         }
     }
+
+    fun deleteTare(tare: Tare) {
+        viewModelScope.launch {
+            repository.deleteTare(tare)
+        }
+    }
+
 }

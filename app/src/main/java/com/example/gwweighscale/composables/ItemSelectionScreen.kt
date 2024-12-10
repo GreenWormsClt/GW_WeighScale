@@ -40,6 +40,9 @@ import com.example.gwweighscale.viewmodels.ItemSelectionViewModel
 import com.example.gwweighscale.viewmodels.WeighScaleViewModel
 import com.example.gwweighscale.widgets.ConfirmationDialog
 import com.example.gwweighscale.widgets.ItemSelectionAlert
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun ItemSelectionScreen(
@@ -50,7 +53,7 @@ fun ItemSelectionScreen(
     trolleyName: String,
     trolleyWeight: String,
     netWeight: String,
-    staffId:Int,
+    staffId: Int,
 ) {
     val context = LocalContext.current
     val items by viewModel.allItems.observeAsState(emptyList())
@@ -69,11 +72,12 @@ fun ItemSelectionScreen(
     val totalWeight = tNetWeight - tTrolleyWeight
     val formattedTotalWeight = String.format("%.3f", totalWeight)
 
-    val columns = if (configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
-        2
-    } else {
-        4
-    }
+    val columns =
+        if (configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+            2
+        } else {
+            4
+        }
     val displayedItems = items.take(12)  // Always display the first 12 items
     var selectedItems = remember { mutableStateListOf<String>() } // Dynamically added items
     var allItems = displayedItems.map { it.itemName } + selectedItems
@@ -122,21 +126,22 @@ fun ItemSelectionScreen(
             Spacer(modifier = Modifier.height(10.dp))
 
 
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(columns), // 4 columns
-                    contentPadding = PaddingValues(16.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp),
-                    modifier = Modifier.fillMaxSize()
-                ) {
-                    items(allItems) { item ->
-                        ItemButton(
-                            item = item,
-                            onItemSelected = { selectedItemName ->
-                                selectedItem = selectedItemName
-                                showDialog = true
-                            })}
+            LazyVerticalGrid(
+                columns = GridCells.Fixed(columns), // 4 columns
+                contentPadding = PaddingValues(16.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+                horizontalArrangement = Arrangement.spacedBy(16.dp),
+                modifier = Modifier.fillMaxSize()
+            ) {
+                items(allItems) { item ->
+                    ItemButton(
+                        item = item,
+                        onItemSelected = { selectedItemName ->
+                            selectedItem = selectedItemName
+                            showDialog = true
+                        })
                 }
+            }
 
         }
         FloatingActionButton(
@@ -154,6 +159,9 @@ fun ItemSelectionScreen(
         // Get the selected item's ID
         val selectedItemId = items.find { it.itemName == selectedItem }?.itemId ?: 0
 
+        val currentDate = SimpleDateFormat("dd-MM-yyyy", Locale.getDefault()).format(Date())
+        val currentTime = SimpleDateFormat("HH:mm:ss", Locale.getDefault()).format(Date())
+
         // Convert the formatted weight string to a Double
         val selectedWeight = formattedTotalWeight.toDoubleOrNull() ?: 0.0
 
@@ -166,7 +174,9 @@ fun ItemSelectionScreen(
                     machineId = 1,
                     weight = selectedWeight,
                     userId = staffId,
-                    itemId = selectedItemId
+                    itemId = selectedItemId,
+                    date = currentDate, // Pass date
+                    time = currentTime // Pass time
                 )
                 showDialog = false
                 Toast.makeText(
@@ -209,7 +219,6 @@ fun ItemSelectionScreen(
         )
     }
 }
-
 
 
 @Composable
