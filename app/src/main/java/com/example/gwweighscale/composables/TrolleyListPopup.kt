@@ -24,12 +24,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gwweighscale.fontfamily.InriaSerif
 import com.example.gwweighscale.rooms.entities.Tare
 import kotlinx.coroutines.launch
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun TrolleyListPopup(
@@ -43,30 +43,38 @@ fun TrolleyListPopup(
     val coroutineScope = rememberCoroutineScope()
     var showDeleteDialog by remember { mutableStateOf(false) }
     var trolleyToDelete by remember { mutableStateOf<Tare?>(null) }
+    var longPressedTrolley by remember { mutableStateOf<Tare?>(null) } // Track long-pressed trolley
 
     Box(
         modifier = modifier
-            .requiredWidthIn(min = 250.dp, max = 350.dp)
-            .wrapContentHeight()
             .padding(16.dp)
+            .fillMaxWidth()
             .background(
                 color = Color.White,
                 shape = MaterialTheme.shapes.medium.copy(all = CornerSize(20.dp))
             )
+            .wrapContentHeight()
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            // Header
+            Text(
+                text = "Trolley List",
+                fontWeight = FontWeight.Bold,
+                fontSize = 24.sp,
+                color = Color(0xFF026163),
+                textAlign = TextAlign.Center,// GWGreen color
+                modifier = Modifier.padding(bottom = 16.dp)
+            )
+
             LazyColumn(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalAlignment = Alignment.CenterHorizontally
+                verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 items(trolleyList) { trolley ->
-                    Row(
+                    Card(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .padding(vertical = 8.dp)
-                            .background(Color.White)
+                            .clickable { onTrolleySelected(trolley); onDismiss() }
                             .combinedClickable(
                                 onClick = {
                                     onTrolleySelected(trolley)
@@ -79,49 +87,68 @@ fun TrolleyListPopup(
                                         ).show()
                                     }
                                 },
-                                onLongClick = {
-                                    trolleyToDelete = trolley
-                                    showDeleteDialog = false
-                                }
-                            )
+                                onLongClick = { longPressedTrolley = trolley }
+                            ),
+                      //  elevation = 4.dp,
+                        shape = MaterialTheme.shapes.medium
                     ) {
-                        Text(
-                            text = "${trolley.name} ${trolley.weight} KG",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Normal,
-                            fontFamily = InriaSerif,
+                        Row(
                             modifier = Modifier
-                                .padding(start = 16.dp)
-                                .weight(1f)
-                        )
-                        if (trolleyToDelete == trolley) {
-                            IconButton(
-                                onClick = {
-                                    trolleyToDelete = trolley
-                                    showDeleteDialog = true
-                                },
-                                modifier = Modifier.align(Alignment.CenterVertically)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Close,
-                                    contentDescription = "Delete Trolley",
-                                    tint = MaterialTheme.colorScheme.error
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = trolley.name,
+                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 20.sp,
+                                    fontFamily = InriaSerif,
+                                    color = Color(0xFF333333)
                                 )
+                                Text(
+                                    text = "${trolley.weight} KG",
+                                    fontWeight = FontWeight.Normal,
+                                    fontSize = 16.sp,
+                                    color = Color.Gray
+                                )
+                            }
+
+                            if (longPressedTrolley == trolley) { // Show delete button only for long-pressed trolley
+                                Button(
+                                    onClick = {
+                                        trolleyToDelete = trolley
+                                        showDeleteDialog = true
+                                    },
+                                    colors = ButtonDefaults.buttonColors(
+                                        containerColor = Color.Red // GWGreen color
+                                    ),
+                                    modifier = Modifier.padding(start = 8.dp)
+                                ) {
+                                    Text(
+                                        text = "Delete",
+                                        color = Color.White,
+                                        fontWeight = FontWeight.Bold
+                                    )
+                                }
                             }
                         }
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(20.dp))
-            TextButton(
-                onClick = onDismiss, // Handle dismiss action
-                modifier = Modifier.align(Alignment.End)
-            ) {
-                Text(
-                    text = "Close",
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.primary
-                )
+
+            Spacer(modifier = Modifier.height(16.dp))
+            Row(modifier = Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.End) {
+                Button(
+                    onClick = onDismiss,
+                    colors = ButtonDefaults.run { buttonColors(containerColor = Color.White) },
+                ) {
+                    Text(
+                        text = "Close",
+                        color = Color(0xFF026163),
+                        fontWeight = FontWeight.Bold
+                    )
+                }
             }
         }
     }
@@ -147,12 +174,13 @@ fun TrolleyListPopup(
                     onClick = {
                         trolleyToDelete?.let { onTrolleyDeleted(it) }
                         showDeleteDialog = false
+                        longPressedTrolley = null // Reset long-pressed trolley
                     },
                     colors = ButtonDefaults.buttonColors(
-                        containerColor = MaterialTheme.colorScheme.error
+                        containerColor = Color(0xFF026163) // GWGreen color
                     )
                 ) {
-                    Text("Delete", color = MaterialTheme.colorScheme.onError)
+                    Text("Delete", color = Color.White)
                 }
             },
             dismissButton = {

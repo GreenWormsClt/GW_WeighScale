@@ -272,7 +272,7 @@ fun WeighScaleScreen(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(if (isTablet) 32.dp else 16.dp)  // Adjust spacing between buttons
                 ) {
-                    CircleButton("Troley", onClick = { tareViewModel.onTareClick() }, isTablet)
+                    CircleButton("Trolley", onClick = { tareViewModel.onTareClick() }, isTablet)
                      CircleButton("History", onClick = { viewModel.onViewClick() }, isTablet)
                 }
 
