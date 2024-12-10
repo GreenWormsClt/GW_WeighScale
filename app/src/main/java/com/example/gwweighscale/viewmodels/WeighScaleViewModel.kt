@@ -1,31 +1,19 @@
 package com.example.gwweighscale.viewmodels
 
 import android.app.Application
-import android.util.Log
-import android.widget.Toast
-import androidx.compose.runtime.Composable
-import androidx.lifecycle.ViewModel
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.State
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import com.example.gwweighscale.models.ItemModel
 import com.example.gwweighscale.models.PopupData
 //import com.example.gwweighscale.models.TareModel
 import androidx.lifecycle.viewModelScope
-import com.example.essaeweighingscale_2p00.EssaeWeighingScale
-import com.example.gwweighscale.Repository.ItemRepository
-import com.example.gwweighscale.Repository.StaffRepository
-import com.example.gwweighscale.Repository.WeighScaleRepository
-import com.example.gwweighscale.Rooms.Database.AppDatabase
-import com.example.gwweighscale.Rooms.Entities.Item
-import com.example.gwweighscale.Rooms.Entities.Staff
-import com.example.gwweighscale.Rooms.Entities.Tare
-import com.example.gwweighscale.Rooms.Entities.WeighScale
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
+import com.example.gwweighscale.repository.StaffRepository
+import com.example.gwweighscale.repository.WeighScaleRepository
+import com.example.gwweighscale.rooms.database.AppDatabase
+import com.example.gwweighscale.rooms.entities.Staff
+import com.example.gwweighscale.rooms.entities.WeighScale
 import kotlinx.coroutines.launch
 
 class WeighScaleViewModel(application: Application) : AndroidViewModel(application) {
@@ -48,7 +36,9 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
     fun deleteWeighScale(weighScale: WeighScale) = viewModelScope.launch {
         weighScaleRepository.deleteWeighScale(weighScale)
     }
-
+    fun getWeighScaleByCode(machineCode: String): WeighScale? {
+        return allWeighScales.value?.find { it.machineCode == machineCode }
+    }
 
     private val repository: StaffRepository
     val allStaffs: LiveData<List<Staff>>
@@ -67,7 +57,11 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
         _rfidMatch.postValue(staff)
         return staff?.userName
     }
-
+    fun validateRfidAndFetchStaffId(rfid: String): Int? {
+        val staff = allStaffs.value?.find { it.rfid == rfid }
+        _rfidMatch.postValue(staff) // Update LiveData for observers
+        return staff?.id // Return the staff object
+    }
 
 
 
@@ -93,35 +87,6 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
     private val _isTrolleyPopupVisible = mutableStateOf(false)
     val isTrolleyPopupVisible: State<Boolean> = _isTrolleyPopupVisible
 
-
-    // MutableState for trolley list
-//    private val _trolleyList = mutableStateOf(
-//        listOf(
-//            TareModel(id = "Trolley1", weight = 1600),
-//            TareModel(id = "Trolley2", weight = 1700),
-//            TareModel(id = "Trolley3", weight = 1800),
-//            TareModel(id = "Trolley1", weight = 1600),
-//            TareModel(id = "Trolley2", weight = 1700),
-//            TareModel(id = "Trolley3", weight = 1800)
-//        )
-//    )
-  //  val trolleyList: State<List<TareModel>> = _trolleyList
-
-    // Function to handle Save button click
-    fun onSaveClick() {
-       //  onNavigateToItemSelection()
-
-    }
-
-//    // Function to handle Tare button click
-//    fun onTareClick() {
-//        _isTrolleyPopupVisible.value = true
-//    }
-//
-//    // Function to handle closing the trolley popup
-//    fun onTrolleyPopupClose() {
-//        _isTrolleyPopupVisible.value = false
-//    }
 
     // Function to handle View button click
     fun onViewClick() {

@@ -21,7 +21,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gwweighscale.fontfamily.InriaSerif
-import com.example.gwweighscale.Rooms.Entities.Tare
+import com.example.gwweighscale.rooms.entities.Tare
 import kotlinx.coroutines.launch
 
 @Composable

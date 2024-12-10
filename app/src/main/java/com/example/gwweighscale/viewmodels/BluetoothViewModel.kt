@@ -21,7 +21,6 @@ import java.util.*
 
 class BluetoothViewModel(application: Application) : AndroidViewModel(application) {
 
-
     private val WEIGH_SCALE_UUID: UUID = UUID.fromString("00001101-0000-1000-8000-00805f9b34fb")
     private val bluetoothAdapter: BluetoothAdapter? = BluetoothAdapter.getDefaultAdapter()
     private var bluetoothSocket: BluetoothSocket? = null
@@ -57,7 +56,6 @@ class BluetoothViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-
     fun connect() {
         status.value = "Connecting..."
 
@@ -90,7 +88,6 @@ class BluetoothViewModel(application: Application) : AndroidViewModel(applicatio
         }
     }
 
-
     private suspend fun readData() {
         try {
             while (true) {
@@ -110,7 +107,4 @@ class BluetoothViewModel(application: Application) : AndroidViewModel(applicatio
             println("Error reading data: ${e.message}")
         }
     }
-
-
-
 }

@@ -12,6 +12,7 @@ import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.SearchBar
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -96,30 +97,28 @@ fun ItemSelectionAlert(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     // Scrollable list of filtered items
-                    Box(
+                    Column(
                         modifier = Modifier
                             .fillMaxWidth()
                             .heightIn(min = 100.dp, max = 250.dp) // Limit the height of the scrollable area
                             .verticalScroll(rememberScrollState()) // Enable scrolling only for items
                     ) {
-                        Column {
-                            filteredItems.forEach { item ->
-                                Text(
-                                    text = item,
-                                    modifier = Modifier
-                                        .fillMaxWidth()
-                                        .padding(vertical = 4.dp)
-                                        .background(Color(0xFF026163), RoundedCornerShape(8.dp))
-                                        .clickable {
-                                            onItemSelected(item)
-                                        }
-                                        .padding(vertical = 10.dp, horizontal = 16.dp),
-                                    color = Color.White,
-                                    fontSize = 18.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    fontFamily = InriaSerif
-                                )
-                            }
+                        filteredItems.forEach { item ->
+                            Text(
+                                text = item,
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(vertical = 4.dp)
+                                    .background(Color(0xFF026163), RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        onItemSelected(item)
+                                    }
+                                    .padding(vertical = 10.dp, horizontal = 16.dp),
+                                color = Color.White,
+                                fontSize = 18.sp,
+                                fontWeight = FontWeight.Bold,
+                                fontFamily = InriaSerif
+                            )
                         }
                     }
                 }
@@ -128,6 +127,3 @@ fun ItemSelectionAlert(
         buttons = {}
     )
 }
-
-
-

@@ -1,9 +1,14 @@
 package com.example.gwweighscale.composables
 
+import android.adservices.adid.AdId
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -20,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.font.FontWeight
@@ -43,14 +49,34 @@ fun ItemSelectionScreen(
     staffName: String,
     trolleyName: String,
     trolleyWeight: String,
-    netWeight: String
+    netWeight: String,
+    staffId:Int,
 ) {
     val context = LocalContext.current
     val items by viewModel.allItems.observeAsState(emptyList())
 
 
-    val displayedItems = remember { items.take(12) } // Always display the first 12 items
-    val selectedItems = remember { mutableStateListOf<String>() } // Dynamically added items
+    val configuration = LocalConfiguration.current
+    fun cleanAndParseWeight(weight: String): Float {
+        return weight.replace("[^0-9.]".toRegex(), "").toFloatOrNull() ?: 0.0f
+    }
+
+    // Parse weights
+    val tNetWeight = cleanAndParseWeight(netWeight)
+    val tTrolleyWeight = cleanAndParseWeight(trolleyWeight)
+
+    // Calculate total weight
+    val totalWeight = tNetWeight - tTrolleyWeight
+    val formattedTotalWeight = String.format("%.3f", totalWeight)
+
+    val columns = if (configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
+        2
+    } else {
+        4
+    }
+    val displayedItems = items.take(12)  // Always display the first 12 items
+    var selectedItems = remember { mutableStateListOf<String>() } // Dynamically added items
+    var allItems = displayedItems.map { it.itemName } + selectedItems
 
     var showDialog by remember { mutableStateOf(false) }
     var showItemPopup by remember { mutableStateOf(false) }
@@ -65,7 +91,7 @@ fun ItemSelectionScreen(
             horizontalAlignment = Alignment.End,
             modifier = Modifier
                 .fillMaxWidth()
-                .verticalScroll(rememberScrollState())
+//                .verticalScroll(rememberScrollState())
                 .align(Alignment.TopEnd)
         ) {
             Text(
@@ -75,7 +101,7 @@ fun ItemSelectionScreen(
             )
             Spacer(modifier = Modifier.height(4.dp))
             Text(
-                text = "WEIGHT: $netWeight",
+                text = "WEIGHT: $formattedTotalWeight KG",
                 fontWeight = FontWeight.Bold,
                 fontSize = 20.sp
             )
@@ -95,33 +121,23 @@ fun ItemSelectionScreen(
             )
             Spacer(modifier = Modifier.height(10.dp))
 
-            // Combine fixed items and dynamically added items
-            val allItems = displayedItems.map { it.itemName } + selectedItems
 
-            // Group items into rows of 4
-            val chunkedItems = allItems.chunked(4)
-
-            Column(
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxWidth()
-            ) {
-                chunkedItems.forEach { rowItems ->
-                    Row(
-                        horizontalArrangement = Arrangement.spacedBy(16.dp),
-                        modifier = Modifier.fillMaxWidth()
-                    ) {
-                        rowItems.forEach { itemName ->
-                            ItemButton(
-                                item = itemName,
-                                onItemSelected = { selectedItemName ->
-                                    selectedItem = selectedItemName
-                                    showDialog = true
-                                }
-                            )
-                        }
-                    }
+                LazyVerticalGrid(
+                    columns = GridCells.Fixed(columns), // 4 columns
+                    contentPadding = PaddingValues(16.dp),
+                    verticalArrangement = Arrangement.spacedBy(16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp),
+                    modifier = Modifier.fillMaxSize()
+                ) {
+                    items(allItems) { item ->
+                        ItemButton(
+                            item = item,
+                            onItemSelected = { selectedItemName ->
+                                selectedItem = selectedItemName
+                                showDialog = true
+                            })}
                 }
-            }
+
         }
         FloatingActionButton(
             onClick = { showItemPopup = true },
@@ -135,9 +151,23 @@ fun ItemSelectionScreen(
     }
 
     if (showDialog) {
+        // Get the selected item's ID
+        val selectedItemId = items.find { it.itemName == selectedItem }?.itemId ?: 0
+
+        // Convert the formatted weight string to a Double
+        val selectedWeight = formattedTotalWeight.toDoubleOrNull() ?: 0.0
+
         ConfirmationDialog(
             selectedItem = selectedItem,
             onConfirm = {
+                viewModel.insertReport(
+                    mrfId = 1,
+                    plantId = 1,
+                    machineId = 1,
+                    weight = selectedWeight,
+                    userId = staffId,
+                    itemId = selectedItemId
+                )
                 showDialog = false
                 Toast.makeText(
                     context,
@@ -149,6 +179,7 @@ fun ItemSelectionScreen(
             onDismiss = { showDialog = false }
         )
     }
+
 
     if (showItemPopup) {
         // Filter items to display only the 13th and beyond

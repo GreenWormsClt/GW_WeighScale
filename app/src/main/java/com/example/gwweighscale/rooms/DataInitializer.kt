@@ -1,10 +1,10 @@
-package com.example.gwweighscale.Rooms
+package com.example.gwweighscale.rooms
 
-import com.example.gwweighscale.Rooms.Database.AppDatabase
-import com.example.gwweighscale.Rooms.Entities.Item
-import com.example.gwweighscale.Rooms.Entities.Staff
-import com.example.gwweighscale.Rooms.Entities.Tare
-import com.example.gwweighscale.Rooms.Entities.WeighScale
+import com.example.gwweighscale.rooms.database.AppDatabase
+import com.example.gwweighscale.rooms.entities.Item
+import com.example.gwweighscale.rooms.entities.Staff
+import com.example.gwweighscale.rooms.entities.Tare
+import com.example.gwweighscale.rooms.entities.WeighScale
 //import com.example.gwweighscale.Rooms.Entities.Staff
 //import com.example.gwweighscale.Rooms.Entities.Fruit
 import kotlinx.coroutines.CoroutineScope
@@ -33,9 +33,14 @@ object DataInitializer {
                 Item(11, itemName = "Aluminum foil"),
                 Item(12, itemName = "PP"),
                 Item(13, itemName = "rafiya"),
-//                Item(14, itemName = "LD"),
-//                Item(15, itemName = "Aluminum foil"),
-//                Item(16, itemName = "PP"),
+                Item(14, itemName = "LD"),
+                Item(15, itemName = "Aluminum foil"),
+                Item(16, itemName = "PP"),
+                Item(17, itemName = "PP"),
+                Item(18, itemName = "rafiya"),
+                Item(19, itemName = "LD"),
+                Item(20, itemName = "Aluminum foil"),
+                Item(21, itemName = "PP"),
 
 
                 )
@@ -49,12 +54,12 @@ object DataInitializer {
 
             val defaultTares = listOf(
                 Tare(1, "Trolley1", 0.123),
-                Tare(2, "Trolley2", 100.00),
-                Tare(3, "Trolley3", 60.00),
-                Tare(4, "Trolley4", 240.00),
-                Tare(5, "Trolley5", 300.00),
-                Tare(6, "Trolley6", 148.00),
-                Tare(7, "Trolley7", 210.00),
+                Tare(2, "Trolley2", 1.120),
+                Tare(3, "Trolley3", 2.010),
+                Tare(4, "Trolley4", 0.050),
+                Tare(5, "Trolley5", 0.500),
+                Tare(6, "Trolley6", 1.800),
+                Tare(7, "Trolley7", 2.900),
             )
             database.tareDao().insertTares(defaultTares)
             val defaultWeighScales = listOf(

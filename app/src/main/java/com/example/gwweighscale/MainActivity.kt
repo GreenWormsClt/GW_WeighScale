@@ -1,12 +1,27 @@
 package com.example.gwweighscale
 
+import android.bluetooth.BluetoothAdapter
+import android.bluetooth.BluetoothDevice
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.IntentFilter
+import android.content.pm.ActivityInfo
+import android.os.Build
 import android.os.Bundle
+import android.os.Handler
+import android.os.Looper
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.viewModels
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
-import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
+//import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
@@ -21,7 +36,6 @@ import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.LoginViewModel
 import com.example.gwweighscale.viewmodels.WeighScaleViewModel
 import androidx.navigation.navArgument
-import com.example.gwweighscale.Rooms.Entities.Tare
 
 
 class MainActivity : ComponentActivity() {
@@ -31,7 +45,7 @@ class MainActivity : ComponentActivity() {
     private val weighScaleViewModel: WeighScaleViewModel by viewModels()
 
 
-    // Permissions launcher for Bluetooth
+   //  Permissions launcher for Bluetooth
     private val permissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -41,11 +55,23 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         bluetoothViewModel.checkBluetoothPermissions(this, permissionsLauncher)
-        installSplashScreen()
+
+        //installSplashScreen()
         setContent {
             GWWeighScaleTheme {
-                MyApp( bluetoothViewModel = bluetoothViewModel,loginViewModel = loginViewModel,weighScaleViewModel = weighScaleViewModel)
+                ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
+                    val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
+                    view.updatePadding(bottom = bottom)
+                    insets
+
+                }
+                MyApp(
+                    bluetoothViewModel = bluetoothViewModel,
+                    loginViewModel = loginViewModel,
+                    weighScaleViewModel = weighScaleViewModel
+                )
             }
         }
     }
@@ -94,26 +120,28 @@ fun WeighScaleApp(
                         popUpTo(navController.graph.startDestinationId) { inclusive = true }
                     }
                 },
-                onNavigateToItemSelection = { staffName, trolleyName, trolleyWeight, netWeight ->
+                onNavigateToItemSelection = { staffName, staffId, trolleyName, trolleyWeight, netWeight ->
                     // Navigate to ItemSelectionScreen with all required arguments
-                    navController.navigate("item/$staffName/$trolleyName/$trolleyWeight/$netWeight")
+                    navController.navigate("item/$staffName/$staffId/$trolleyName/$trolleyWeight/$netWeight")
                 }
             )
         }
         // Item Selection Screen
         composable(
-            route = "item/{staffName}/{trolleyName}/{trolleyWeight}/{netWeight}",
+            route = "item/{staffName}/{trolleyName}/{trolleyWeight}/{netWeight}/{staffId}",
             arguments = listOf(
                 navArgument("staffName") { type = NavType.StringType },
                 navArgument("trolleyName") { type = NavType.StringType },
                 navArgument("trolleyWeight") { type = NavType.StringType },
-                navArgument("netWeight") { type = NavType.StringType }
+                navArgument("netWeight") { type = NavType.StringType },
+                navArgument("staffId") { type = NavType.IntType },
             )
         ) { backStackEntry ->
             val staffName = backStackEntry.arguments?.getString("staffName") ?: "Unknown"
             val trolleyName = backStackEntry.arguments?.getString("trolleyName") ?: "Unknown"
             val trolleyWeight = backStackEntry.arguments?.getString("trolleyWeight") ?: "Unknown"
             val netWeight = backStackEntry.arguments?.getString("netWeight") ?: "Unknown"
+            val staffId = backStackEntry.arguments?.getInt("staffId") ?: 0
 
             ItemSelectionScreen(
                 onNavigateToWeighScale = {
@@ -124,7 +152,8 @@ fun WeighScaleApp(
                 staffName = staffName,
                 trolleyName = trolleyName,
                 trolleyWeight = trolleyWeight,
-                netWeight = netWeight
+                netWeight = netWeight,
+                staffId = staffId
             )
         }
     }

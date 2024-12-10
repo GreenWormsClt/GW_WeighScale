@@ -1,15 +1,14 @@
-package com.example.gwweighscale.Repository
+package com.example.gwweighscale.repository
 
 import androidx.lifecycle.LiveData
-import com.example.gwweighscale.Rooms.Dao.ItemReportDao
-import com.example.gwweighscale.Rooms.Entities.Item
-import com.example.gwweighscale.Rooms.Entities.ItemReport
+import com.example.gwweighscale.rooms.dao.ItemReportDao
+import com.example.gwweighscale.rooms.entities.ItemReport
 
 class ItemReportRepository(private val itemReportDao: ItemReportDao) {
 
     val allReports: LiveData<List<ItemReport>> = itemReportDao.getAllReports()
 
-    fun insertReport(itemreport: ItemReport) {
+    suspend fun insertReport(itemreport: ItemReport) {
         itemReportDao.insertReport(itemreport) // This now correctly calls the suspend DAO method
     }
 

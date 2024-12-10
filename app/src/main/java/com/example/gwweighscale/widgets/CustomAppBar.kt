@@ -1,5 +1,6 @@
 package com.example.gwweighscale.widgets
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -42,11 +43,13 @@ fun CustomAppBar(
     onNavigateToLogin: () -> Unit, // Add a navigation callback for login
     fontFamily: FontFamily = InriaSerif,
     imageRes: Int,
-    modifier: Modifier
+    bluetoothIcon: Int,
+    modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }
+    var showAddTrolleyDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) } // State to show/hide the dialog
-
+    var showBluetoothDialog by remember { mutableStateOf(false) }
     CenterAlignedTopAppBar(
         title = {
             Row(
@@ -61,14 +64,23 @@ fun CustomAppBar(
                 )
                 Spacer(modifier = Modifier.width(8.dp)) // Add space between image and title
 
-                // Title text
                 Text(
                     text = title,
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     fontFamily = fontFamily,
                     color = Color.Black,
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.weight(1f) // Push remaining items to the end
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                // Bluetooth icon on the right
+                Icon(
+                    painter = painterResource(id = bluetoothIcon),
+                    contentDescription = "Bluetooth Icon",
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clickable { showBluetoothDialog = true }, // Show the Bluetooth dialog on click
+                    tint = Color.Unspecified
                 )
             }
         },
@@ -89,16 +101,11 @@ fun CustomAppBar(
             ) {
                 DropdownMenuItem(
                     text = {
-                        Text(
-                            text = "Add Trolley",
-                            fontFamily = fontFamily,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp
-                        )
+                        Text("Add Trolley", fontFamily = fontFamily, fontSize = 16.sp)
                     },
                     onClick = {
                         expanded = false
-                        onExitClick()
+                        showAddTrolleyDialog = true // Show the Add Trolley dialog
                     }
                 )
                 DropdownMenuItem(
@@ -137,7 +144,16 @@ fun CustomAppBar(
         ),
         modifier = Modifier.fillMaxWidth()
     )
-
+    if (showAddTrolleyDialog) {
+        AddTrolleyDialog(
+            onDismiss = { showAddTrolleyDialog = false },
+            onSave = { name, weight ->
+                showAddTrolleyDialog = false
+                // Handle save action, e.g., add to database or state
+                println("Trolley Name: $name, Trolley Weight: $weight KG")
+            }
+        )
+    }
     // Logout confirmation dialog
     if (showLogoutDialog) {
         AlertDialog(

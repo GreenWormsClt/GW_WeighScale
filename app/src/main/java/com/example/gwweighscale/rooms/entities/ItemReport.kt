@@ -1,4 +1,4 @@
-package com.example.gwweighscale.Rooms.Entities
+package com.example.gwweighscale.rooms.entities
 
 import androidx.room.Entity
 import androidx.room.ForeignKey
@@ -16,13 +16,13 @@ import androidx.room.PrimaryKey
         ),
         ForeignKey(
             entity = Staff::class,
-            parentColumns = ["id"], // Corrected to match the primary key of the Staff table
+            parentColumns = ["id"],
             childColumns = ["userId"],
             onDelete = ForeignKey.CASCADE
         ),
         ForeignKey(
             entity = Item::class,
-            parentColumns = ["itemId"], // Ensure the Item table has itemId as its primary key
+            parentColumns = ["itemId"],
             childColumns = ["itemId"],
             onDelete = ForeignKey.CASCADE
         )
@@ -34,11 +34,11 @@ import androidx.room.PrimaryKey
     ]
 )
 data class ItemReport(
-    @PrimaryKey(autoGenerate = true) val reportId: Int = 0, // Enable auto-generation for unique IDs
-    val mrfId: Int, // MRF identifier
-    val plantId: Int, // Plant identifier
-    val machineId: Int, // Foreign key to WeighScale
-    val weight: Double, // Weight value
-    val userId: Int, // Foreign key to Staff
-    val itemId: Int // Foreign key to Item
+    @PrimaryKey(autoGenerate = true) val reportId: Int = 0,
+    val mrfId: Int,
+    val plantId: Int,
+    val machineId: Int,
+    val weight: Double,
+    val userId: Int,
+    val itemId: Int
 )

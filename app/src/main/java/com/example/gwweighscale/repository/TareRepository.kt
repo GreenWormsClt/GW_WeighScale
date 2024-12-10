@@ -1,8 +1,8 @@
-package com.example.gwweighscale.Repository
+package com.example.gwweighscale.repository
 
 import androidx.lifecycle.LiveData
-import com.example.gwweighscale.Rooms.Dao.TareDao
-import com.example.gwweighscale.Rooms.Entities.Tare
+import com.example.gwweighscale.rooms.dao.TareDao
+import com.example.gwweighscale.rooms.entities.Tare
 
 
 class TareRepository(private val tareDao: TareDao) {

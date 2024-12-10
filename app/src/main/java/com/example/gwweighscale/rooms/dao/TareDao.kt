@@ -1,12 +1,12 @@
-package com.example.gwweighscale.Rooms.Dao
+package com.example.gwweighscale.rooms.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import com.example.gwweighscale.Rooms.Entities.Item
-import com.example.gwweighscale.Rooms.Entities.Tare
+import com.example.gwweighscale.rooms.entities.ItemReport
+import com.example.gwweighscale.rooms.entities.Tare
 
 @Dao
 interface TareDao {
@@ -15,5 +15,6 @@ interface TareDao {
     fun getAllTares(): LiveData<List<Tare>> // Fetch all Tares as LiveData
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertTares(tares: List<Tare>) // Insert a list of Tares
+    suspend fun insertTares(tares: List<Tare>) // Insert a list of Tares
+
 }

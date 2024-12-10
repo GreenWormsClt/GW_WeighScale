@@ -1,9 +1,8 @@
-package com.example.gwweighscale.Repository
+package com.example.gwweighscale.repository
 
 import androidx.lifecycle.LiveData
-import com.example.gwweighscale.Rooms.Dao.ItemDao
-import com.example.gwweighscale.Rooms.Entities.Item
-import kotlinx.coroutines.flow.Flow
+import com.example.gwweighscale.rooms.dao.ItemDao
+import com.example.gwweighscale.rooms.entities.Item
 
 class ItemRepository(private val itemDao: ItemDao) {
     val allItems: LiveData<List<Item>> = itemDao.getAllItems()

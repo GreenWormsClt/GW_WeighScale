@@ -1,10 +1,9 @@
 // File: Rooms/Dao/ItemDao.kt
-package com.example.gwweighscale.Rooms.Dao
+package com.example.gwweighscale.rooms.dao
 
 import androidx.lifecycle.LiveData
 import androidx.room.*
-import com.example.gwweighscale.Rooms.Entities.Item
-import kotlinx.coroutines.flow.Flow
+import com.example.gwweighscale.rooms.entities.Item
 
 @Dao
 interface ItemDao {
@@ -12,11 +11,11 @@ interface ItemDao {
     fun getAllItems(): LiveData<List<Item>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-     fun insertItem(item: Item)
+    suspend  fun insertItem(item: Item)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertItems(items: List<Item>)
+    suspend fun insertItems(items: List<Item>)
 
     @Delete
-    fun deleteItem(item: Item)
+    suspend fun deleteItem(item: Item)
 }

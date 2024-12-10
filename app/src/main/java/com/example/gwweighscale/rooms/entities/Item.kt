@@ -1,4 +1,4 @@
-package com.example.gwweighscale.Rooms.Entities
+package com.example.gwweighscale.rooms.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey

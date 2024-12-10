@@ -49,15 +49,13 @@ package com.example.gwweighscale.viewmodels
 
 import android.app.Application
 import androidx.lifecycle.AndroidViewModel
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.example.gwweighscale.Repository.ItemReportRepository
-import com.example.gwweighscale.Repository.ItemRepository
-import com.example.gwweighscale.Rooms.Database.AppDatabase
-import com.example.gwweighscale.Rooms.Entities.Item
-import com.example.gwweighscale.Rooms.Entities.ItemReport
+import com.example.gwweighscale.repository.ItemReportRepository
+import com.example.gwweighscale.repository.ItemRepository
+import com.example.gwweighscale.rooms.database.AppDatabase
+import com.example.gwweighscale.rooms.entities.Item
+import com.example.gwweighscale.rooms.entities.ItemReport
 import kotlinx.coroutines.launch
 
 
@@ -73,7 +71,6 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
     }
 
     fun insertReport(
-        reportId: Int,
         mrfId: Int,
         plantId: Int,
         machineId: Int,
@@ -82,7 +79,6 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
         itemId: Int
     ) {
         val newReport = ItemReport(
-            reportId = reportId,
             mrfId = mrfId,
             plantId = plantId,
             machineId = machineId,

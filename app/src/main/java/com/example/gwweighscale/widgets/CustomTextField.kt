@@ -31,8 +31,8 @@ fun CustomTextField(
     borderColor: Color = colorResource(id = R.color.GWGreen),
     labelColor: Color = colorResource(id = R.color.GWGreen), // Default label color
     modifier: Modifier = Modifier,
-    keyboardOptions: KeyboardOptions,
-    keyboardActions: KeyboardActions
+    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardActions: KeyboardActions = KeyboardActions.Default
 ) {
 
     val focusManager = LocalFocusManager.current
@@ -54,12 +54,8 @@ fun CustomTextField(
             ),
             singleLine = true, // Add this line
             textStyle = MaterialTheme.typography.bodyMedium.copy(color = Color.Black), // Add this line
-            keyboardOptions = KeyboardOptions.Default.copy(
-                imeAction = ImeAction.Done
-            ),
-            keyboardActions = KeyboardActions(
-                onDone = { focusManager.clearFocus() } // Clear focus on Done action
-            )
+            keyboardOptions = keyboardOptions,
+            keyboardActions = keyboardActions,
         )
         if (isError && errorMessage != null) {
             Text(

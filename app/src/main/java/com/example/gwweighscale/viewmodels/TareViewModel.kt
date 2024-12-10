@@ -5,9 +5,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
-import com.example.gwweighscale.Repository.TareRepository
-import com.example.gwweighscale.Rooms.Database.AppDatabase
-import com.example.gwweighscale.Rooms.Entities.Tare
+import com.example.gwweighscale.repository.TareRepository
+import com.example.gwweighscale.rooms.database.AppDatabase
+import com.example.gwweighscale.rooms.entities.Tare
 import kotlinx.coroutines.launch
 
 class TareViewModel(application: Application) : AndroidViewModel(application) {
@@ -34,6 +34,13 @@ class TareViewModel(application: Application) : AndroidViewModel(application) {
     fun insertDefaultTares(defaultTares: List<Tare>) {
         viewModelScope.launch {
             repository.insertTares(defaultTares)
+        }
+    }
+
+    // Insert a single Tare
+    fun insertTare(tare: Tare) {
+        viewModelScope.launch {
+            repository.insertTares(listOf(tare))
         }
     }
 }

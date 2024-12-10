@@ -1,9 +1,8 @@
-package com.example.gwweighscale.Repository
+package com.example.gwweighscale.repository
 
 import androidx.lifecycle.LiveData
-import com.example.gwweighscale.Rooms.Dao.WeighScaleDao
-import com.example.gwweighscale.Rooms.Entities.Item
-import com.example.gwweighscale.Rooms.Entities.WeighScale
+import com.example.gwweighscale.rooms.dao.WeighScaleDao
+import com.example.gwweighscale.rooms.entities.WeighScale
 
 
 class WeighScaleRepository(private val weighScaleDao: WeighScaleDao) {
