@@ -66,6 +66,7 @@ fun WeighScaleScreen(
     bluetoothViewModel: BluetoothViewModel,
     tareViewModel: TareViewModel = viewModel(),
     viewModel: WeighScaleViewModel = viewModel(),
+    onNavigateToDeviceList: () -> Unit,
     onNavigateToLogin: () -> Unit, // Pass the navigation callback to LoginScreen
     onNavigateToItemSelection: (String, String, String, String , String) -> Unit
 ) {
@@ -122,13 +123,13 @@ fun WeighScaleScreen(
         ) {
             // Add the CustomAppBar at the top
             CustomAppBar(
-                bluetoothIcon = R.drawable.img,
                 imageRes = R.drawable.gwicon,
                 onTrolleyAdded = { trolley ->
                     tareViewModel.insertTare(trolley) // Add the trolley to the database
                 },
                 title = "GW Weigh Scale",
                 iconRes = R.drawable.threedots,
+                onNavigateToDeviceList = onNavigateToDeviceList,
                 onLogoutClick = {
                     onNavigateToLogin() // Navigate to the Login screen
                 },
@@ -190,25 +191,49 @@ fun WeighScaleScreen(
 
             fun onRFIDTapped(input: String) {
                 rfidTag = input
-                staffId = viewModel.validateRfidAndFetchStaffId(input).toString()
-                matchedStaffName = viewModel.validateRfidAndFetchStaffName(input)
-                if (matchedStaffName != null) {
-                    if (selectedTrolley != null) {
-                        selectedNetWeight = netWeight
-                        onNavigateToItemSelection(
-                            matchedStaffName!!,
-                            selectedTrolley!!.name,
-                            selectedTrolley!!.weight.toString(),
-                            selectedNetWeight,
-                            staffId!!,
-                        )
+                val expectedLength = 10
+                if (input.length == expectedLength) {
+                    staffId = viewModel.validateRfidAndFetchStaffId(input).toString()
+                    matchedStaffName = viewModel.validateRfidAndFetchStaffName(input)
+                    if (matchedStaffName != null) {
+                        if (selectedTrolley != null) {
+                            selectedNetWeight = netWeight
+                            onNavigateToItemSelection(
+                                matchedStaffName!!,
+                                selectedTrolley!!.name,
+                                selectedTrolley!!.weight.toString(),
+                                selectedNetWeight,
+                                staffId!!,
+                            )
+                        } else {
+                            Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT).show()
+                        }
                     } else {
-                        Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(context, "RFID not found!", Toast.LENGTH_SHORT).show()
                     }
-                } else {
-                    Toast.makeText(context, "RFID not found!", Toast.LENGTH_SHORT).show()
                 }
             }
+//            fun onRFIDTapped(input: String) {
+//                rfidTag = input
+//                staffId = viewModel.validateRfidAndFetchStaffId(input).toString()
+//                matchedStaffName = viewModel.validateRfidAndFetchStaffName(input)
+//                if (matchedStaffName != null) {
+//                    if (selectedTrolley != null) {
+//                        selectedNetWeight = netWeight
+//                        onNavigateToItemSelection(
+//                            matchedStaffName!!,
+//                            selectedTrolley!!.name,
+//                            selectedTrolley!!.weight.toString(),
+//                            selectedNetWeight,
+//                            staffId!!,
+//                        )
+//                    } else {
+//                        Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT).show()
+//                    }
+//                } else {
+//                    Toast.makeText(context, "RFID not found!", Toast.LENGTH_SHORT).show()
+//                }
+//            }
 
             Spacer(modifier = Modifier.weight(1f))
 
@@ -226,9 +251,9 @@ fun WeighScaleScreen(
                     modifier = Modifier
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
-                        .alpha(1f),
-//                        readOnly = true,
-//                    enabled = false,
+                        .alpha(0f),
+                        readOnly = true,
+                    enabled = false,
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = Color.Transparent
                     ),

@@ -16,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -56,6 +57,7 @@ fun PopupScreen(reportDetails: List<PopupData>, onDismiss: () -> Unit) {
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         fontFamily = InriaSerif,
+                        color = Color(0xFF026163),
                         modifier = Modifier.padding(bottom = 16.dp),
                         textAlign = TextAlign.Center
                     )

@@ -34,7 +34,7 @@ class BluetoothViewModel(application: Application) : AndroidViewModel(applicatio
     val netweight = mutableStateOf("00.00")
     val date = mutableStateOf("")
     val time = mutableStateOf("")
-    private val macAddress = "00:04:3E:97:7C:61" // Replace with your device MAC address
+    private var macAddress: String? = null // Replace with your device MAC address
 
     val permissionsGranted = mutableStateOf(false)
 
@@ -43,7 +43,10 @@ class BluetoothViewModel(application: Application) : AndroidViewModel(applicatio
         Manifest.permission.BLUETOOTH_CONNECT,
         Manifest.permission.BLUETOOTH_SCAN
     )
-
+    fun setMacAddress(address: String) {
+        macAddress = address
+        status.value = "MAC Address updated: $address"
+    }
     // Check and request Bluetooth permissions
     fun checkBluetoothPermissions(activity: ComponentActivity, permissionsLauncher: ActivityResultLauncher<Array<String>>) {
         permissionsLauncher.launch(bluetoothPermissions)
@@ -68,7 +71,10 @@ class BluetoothViewModel(application: Application) : AndroidViewModel(applicatio
                 return
             }
         }
-
+        if (macAddress == null) {
+            status.value = "Please select a Bluetooth device first."
+            return
+        }
         job = viewModelScope.launch(Dispatchers.IO) {
             try {
                 withContext(Dispatchers.IO) {

@@ -1,0 +1,4 @@
+package com.example.gwweighscale.utils
+
+class BluetoothManager {
+}

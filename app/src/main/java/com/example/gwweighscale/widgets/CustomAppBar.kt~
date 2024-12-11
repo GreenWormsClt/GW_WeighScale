@@ -46,6 +46,7 @@ fun CustomAppBar(
     onTrolleyAdded: (Tare) -> Unit,
     imageRes: Int,
     onNavigateToDeviceList: () -> Unit,
+    bluetoothIcon: Int,
     modifier: Modifier = Modifier
 ) {
     var expanded by remember { mutableStateOf(false) }

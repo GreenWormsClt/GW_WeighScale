@@ -48,7 +48,7 @@ object DataInitializer {
 
             val defaultStaff = listOf(
                 Staff(1, "VISMAYA C", "4260699411"),
-                Staff(2, "KISHORE", "12345"),
+                Staff(2, "KISHORE", "1234567890"),
                 Staff(3, "RAMU", "13455"),
             )
             staffDao.insertAll(defaultStaff)

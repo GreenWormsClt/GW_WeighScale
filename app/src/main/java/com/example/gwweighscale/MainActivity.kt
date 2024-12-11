@@ -36,6 +36,9 @@ import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.LoginViewModel
 import com.example.gwweighscale.viewmodels.WeighScaleViewModel
 import androidx.navigation.navArgument
+import com.example.gwweighscale.composables.BluetoothDeviceListScreen
+import com.example.gwweighscale.viewmodels.BluetoothtestViewmodel
+import androidx.appcompat.app.AppCompatDelegate
 
 
 class MainActivity : ComponentActivity() {
@@ -43,9 +46,10 @@ class MainActivity : ComponentActivity() {
     private val bluetoothViewModel: BluetoothViewModel by viewModels()
     private val loginViewModel: LoginViewModel by viewModels()
     private val weighScaleViewModel: WeighScaleViewModel by viewModels()
+    private val bluetoothtestViewmodel: BluetoothtestViewmodel by viewModels()
 
 
-   //  Permissions launcher for Bluetooth
+    //  Permissions launcher for Bluetooth
     private val permissionsLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
@@ -57,10 +61,10 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
         bluetoothViewModel.checkBluetoothPermissions(this, permissionsLauncher)
-
         //installSplashScreen()
+        AppCompatDelegate.setDefaultNightMode(AppCompatDelegate.MODE_NIGHT_NO)
         setContent {
-            GWWeighScaleTheme {
+            GWWeighScaleTheme (useDarkTheme = false){
                 ViewCompat.setOnApplyWindowInsetsListener(findViewById(android.R.id.content)) { view, insets ->
                     val bottom = insets.getInsets(WindowInsetsCompat.Type.ime()).bottom
                     view.updatePadding(bottom = bottom)
@@ -70,7 +74,8 @@ class MainActivity : ComponentActivity() {
                 MyApp(
                     bluetoothViewModel = bluetoothViewModel,
                     loginViewModel = loginViewModel,
-                    weighScaleViewModel = weighScaleViewModel
+                    weighScaleViewModel = weighScaleViewModel,
+                    bluetoothtestViewmodel = bluetoothtestViewmodel
                 )
             }
         }
@@ -83,13 +88,15 @@ fun MyApp(
     bluetoothViewModel: BluetoothViewModel,
     loginViewModel: LoginViewModel,
     weighScaleViewModel: WeighScaleViewModel,
+    bluetoothtestViewmodel: BluetoothtestViewmodel
 ) {
     val navController = rememberNavController()
     WeighScaleApp(
         navController = navController,
         bluetoothViewModel = bluetoothViewModel,
         loginViewModel = loginViewModel,
-        weighScaleViewModel = weighScaleViewModel
+        weighScaleViewModel = weighScaleViewModel,
+        bluetoothtestViewmodel = bluetoothtestViewmodel
 
     )
 }
@@ -99,6 +106,7 @@ fun WeighScaleApp(
     navController: NavHostController,
     bluetoothViewModel: BluetoothViewModel,
     loginViewModel: LoginViewModel,
+    bluetoothtestViewmodel: BluetoothtestViewmodel,
     weighScaleViewModel: WeighScaleViewModel
 ) {
     val machineCode = loginViewModel.loginModel.value.machineCode
@@ -123,6 +131,9 @@ fun WeighScaleApp(
                 onNavigateToItemSelection = { staffName, staffId, trolleyName, trolleyWeight, netWeight ->
                     // Navigate to ItemSelectionScreen with all required arguments
                     navController.navigate("item/$staffName/$staffId/$trolleyName/$trolleyWeight/$netWeight")
+                },
+                onNavigateToDeviceList = {
+                    navController.navigate("bluetooth_list")
                 }
             )
         }
@@ -154,6 +165,18 @@ fun WeighScaleApp(
                 trolleyWeight = trolleyWeight,
                 netWeight = netWeight,
                 staffId = staffId
+            )
+        }
+        // Bluetooth Device List Screen
+        composable("bluetooth_list") {
+            BluetoothDeviceListScreen(
+                bluetoothtestViewModel = bluetoothtestViewmodel,
+                bluetoothViewModel = bluetoothViewModel,
+                onBackClick = { navController.popBackStack() },
+                onDeviceSelected = {
+                    navController.popBackStack() // Return to the previous screen
+                    bluetoothViewModel.connect() // Attempt connection after device selection
+                }
             )
         }
     }
