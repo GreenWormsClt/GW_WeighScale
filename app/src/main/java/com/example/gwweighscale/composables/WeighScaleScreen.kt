@@ -1,6 +1,7 @@
-  package com.example.gwweighscale.composables
+package com.example.gwweighscale.composables
 
 import android.annotation.SuppressLint
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -34,6 +35,7 @@ import com.example.gwweighscale.viewmodels.WeighScaleViewModel
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
@@ -68,7 +70,7 @@ fun WeighScaleScreen(
     viewModel: WeighScaleViewModel = viewModel(),
     onNavigateToDeviceList: () -> Unit,
     onNavigateToLogin: () -> Unit, // Pass the navigation callback to LoginScreen
-    onNavigateToItemSelection: (String, String, String, String , String) -> Unit
+    onNavigateToItemSelection: (String, String, String, String, String) -> Unit
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -106,8 +108,7 @@ fun WeighScaleScreen(
         val windowInsetsController = ViewCompat.getWindowInsetsController(view)
         windowInsetsController?.hide(WindowInsetsCompat.Type.ime()) // Hide the keyboard explicitly
         focusRequester.requestFocus() // Ensure focus is on the TextField // Ensure focus is on the TextField
-        bluetoothViewModel.connect()// Replace with actual Bluetooth address of your Essae scale
-
+        bluetoothViewModel.connect()
     }
 
     Box(
@@ -190,6 +191,7 @@ fun WeighScaleScreen(
             }
 
             fun onRFIDTapped(input: String) {
+                Log.d("RFID_Debug", "RFID Input: $input")
                 rfidTag = input
                 val expectedLength = 10
                 if (input.length == expectedLength) {
@@ -206,11 +208,13 @@ fun WeighScaleScreen(
                                 staffId!!,
                             )
                         } else {
-                            Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT)
+                                .show()
                         }
                     } else {
                         Toast.makeText(context, "RFID not found!", Toast.LENGTH_SHORT).show()
                     }
+                    rfidTag = ""
                 }
             }
 //            fun onRFIDTapped(input: String) {
@@ -252,8 +256,9 @@ fun WeighScaleScreen(
                         .fillMaxWidth()
                         .focusRequester(focusRequester)
                         .alpha(0f),
-                        readOnly = true,
-                    enabled = false,
+                    singleLine = true,
+                    readOnly = false,
+                    enabled = true,
                     colors = TextFieldDefaults.textFieldColors(
                         containerColor = Color.Transparent
                     ),
@@ -261,10 +266,9 @@ fun WeighScaleScreen(
                         imeAction = ImeAction.None
                     )
                 )
-
                 Spacer(modifier = Modifier.height(16.dp))
-
             }
+
             Spacer(modifier = Modifier.weight(1f))
 
             Row(
@@ -298,7 +302,7 @@ fun WeighScaleScreen(
                     horizontalArrangement = Arrangement.spacedBy(if (isTablet) 32.dp else 16.dp)  // Adjust spacing between buttons
                 ) {
                     CircleButton("Trolley", onClick = { tareViewModel.onTareClick() }, isTablet)
-                     CircleButton("History", onClick = { viewModel.onViewClick() }, isTablet)
+                    CircleButton("History", onClick = { viewModel.onViewClick() }, isTablet)
                 }
 
             }
@@ -368,3 +372,5 @@ fun CircleButton(text: String, onClick: () -> Unit, isTablet: Boolean) {
         )
     }
 }
+
+

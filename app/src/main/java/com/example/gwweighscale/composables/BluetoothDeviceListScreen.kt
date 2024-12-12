@@ -67,6 +67,7 @@ fun BluetoothDeviceListScreen(
                         BluetoothDeviceItem(device = device,
                         onDeviceClick = {
                             bluetoothViewModel.setMacAddress(device.address)
+                            bluetoothViewModel.connect()
                             onDeviceSelected() // Trigger navigation or other action
                         }
                         )

@@ -111,4 +111,5 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
 
 
 
+
 }
