@@ -3,6 +3,7 @@ package com.example.gwweighscale.composables
 import android.annotation.SuppressLint
 import android.util.Log
 import android.widget.Toast
+import androidx.compose.foundation.focusable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,7 @@ import com.example.gwweighscale.viewmodels.WeighScaleViewModel
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
@@ -49,7 +51,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.zIndex
@@ -103,12 +107,12 @@ fun WeighScaleScreen(
     val context = LocalContext.current
     val date by bluetoothViewModel.date
     var selectedTrolley by remember { mutableStateOf<Tare?>(null) }
-
+    val keyboardController = LocalSoftwareKeyboardController.current
     LaunchedEffect(Unit) {
-        val windowInsetsController = ViewCompat.getWindowInsetsController(view)
-        windowInsetsController?.hide(WindowInsetsCompat.Type.ime()) // Hide the keyboard explicitly
-        focusRequester.requestFocus() // Ensure focus is on the TextField // Ensure focus is on the TextField
+        keyboardController?.hide()
         bluetoothViewModel.connect()
+        focusRequester.requestFocus() // Request focus programmatically
+
     }
 
     Box(
@@ -243,32 +247,31 @@ fun WeighScaleScreen(
 
 
             // Removed the Image and its surrounding Column
-            Column(modifier = Modifier.fillMaxSize()) {
-                var matchedStaffName by remember { mutableStateOf<String?>(null) }
+//            Column(modifier = Modifier.fillMaxSize()) {
+           //     var matchedStaffName by remember { mutableStateOf<String?>(null) }
 
-                TextField(
+                BasicTextField(
                     value = rfidTag,
                     onValueChange = { input ->
                         onRFIDTapped(input)
                     },
-                    label = { Text("RFID Tag") },
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .focusRequester(focusRequester)
-                        .alpha(0f),
-                    singleLine = true,
-                    readOnly = false,
-                    enabled = true,
-                    colors = TextFieldDefaults.textFieldColors(
-                        containerColor = Color.Transparent
+                        .focusRequester(focusRequester) // Attach the focus requester
+                        .alpha(0f) // Make the TextField invisible
+                        .height(0.dp) // Reduce the height to 0
+                        .focusable(true), // Disable the keyboard trigger
+                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    keyboardActions = KeyboardActions(
+                        onDone = {
+                            keyboardController?.hide() // Hide the keyboard after "Done"
+                        }
                     ),
-                    keyboardOptions = KeyboardOptions.Default.copy(
-                        imeAction = ImeAction.None
-                    )
-                )
-                Spacer(modifier = Modifier.height(16.dp))
-            }
+                    singleLine = true,
+                    decorationBox = {}
 
+                )
+            //    Spacer(modifier = Modifier.height(16.dp))
+          //  }
             Spacer(modifier = Modifier.weight(1f))
 
             Row(
@@ -303,6 +306,7 @@ fun WeighScaleScreen(
                 ) {
                     CircleButton("Trolley", onClick = { tareViewModel.onTareClick() }, isTablet)
                     CircleButton("History", onClick = { viewModel.onViewClick() }, isTablet)
+                    CircleButton(text = "Report", onClick = { /*TODO*/ }, isTablet)
                 }
 
             }
