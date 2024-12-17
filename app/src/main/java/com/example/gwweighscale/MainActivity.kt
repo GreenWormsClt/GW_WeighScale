@@ -1,17 +1,8 @@
 package com.example.gwweighscale
 
-import android.bluetooth.BluetoothAdapter
-import android.bluetooth.BluetoothDevice
-import android.content.BroadcastReceiver
-import android.content.Context
-import android.content.Intent
-import android.content.IntentFilter
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
-import android.os.Handler
-import android.os.Looper
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.result.contract.ActivityResultContracts
@@ -39,6 +30,11 @@ import androidx.navigation.navArgument
 import com.example.gwweighscale.composables.BluetoothDeviceListScreen
 import com.example.gwweighscale.viewmodels.BluetoothtestViewmodel
 import androidx.appcompat.app.AppCompatDelegate
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gwweighscale.composables.ReportScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -57,6 +53,7 @@ class MainActivity : ComponentActivity() {
         bluetoothViewModel.updatePermissionsStatus(allGranted)
     }
 
+    @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         requestedOrientation = ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE
@@ -83,6 +80,7 @@ class MainActivity : ComponentActivity() {
 
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun MyApp(
     bluetoothViewModel: BluetoothViewModel,
@@ -179,5 +177,23 @@ fun WeighScaleApp(
                 }
             )
         }
+        composable("report") {
+            val viewModel: WeighScaleViewModel = viewModel()
+            val summaryDetails by viewModel.summaryDetails.observeAsState(emptyList())
+
+            LaunchedEffect(Unit) {
+                viewModel.fetchSummaryDetails()
+            }
+
+            ReportScreen(
+                summaryDetails = summaryDetails, // Pass the observed data
+                onDismiss = {
+                    navController.popBackStack() // Navigate back
+                }
+            )
+        }
+
+
+
     }
 }

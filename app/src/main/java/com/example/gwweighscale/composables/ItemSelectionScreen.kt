@@ -175,20 +175,30 @@ fun ItemSelectionScreen(
                     weight = selectedWeight,
                     userId = staffId,
                     itemId = selectedItemId,
-                    date = currentDate, // Pass date
-                    time = currentTime // Pass time
+                    date = currentDate,
+                    time = currentTime,
+                    onDuplicate = {
+                        Toast.makeText(
+                            context,
+                            "Duplicate entry within 5 minutes is not allowed!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    },
+                    onSuccess = {
+                        Toast.makeText(
+                            context,
+                            "Item $selectedItem added successfully!",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        onNavigateToWeighScale()
+                    }
                 )
                 showDialog = false
-                Toast.makeText(
-                    context,
-                    "Item $selectedItem added successfully!",
-                    Toast.LENGTH_SHORT
-                ).show()
-                onNavigateToWeighScale()
             },
             onDismiss = { showDialog = false }
         )
     }
+
 
 
     if (showItemPopup) {

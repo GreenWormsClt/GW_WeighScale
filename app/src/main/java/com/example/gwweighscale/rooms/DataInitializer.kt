@@ -5,8 +5,6 @@ import com.example.gwweighscale.rooms.entities.Item
 import com.example.gwweighscale.rooms.entities.Staff
 import com.example.gwweighscale.rooms.entities.Tare
 import com.example.gwweighscale.rooms.entities.WeighScale
-//import com.example.gwweighscale.Rooms.Entities.Staff
-//import com.example.gwweighscale.Rooms.Entities.Fruit
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

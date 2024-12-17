@@ -59,6 +59,7 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.zIndex
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.example.gwweighscale.models.ReportData
 import com.example.gwweighscale.rooms.entities.Tare
 import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.TareViewModel
@@ -92,6 +93,7 @@ fun WeighScaleScreen(
     val popupData by viewModel.popupData
     val staff by viewModel.allStaffs.observeAsState(emptyList())
     // val isTrolleyPopupVisible by viewModel.isTrolleyPopupVisible
+    var isReportVisible by remember { mutableStateOf(false) }
 
     val rfidMatch by viewModel.rfidMatch.observeAsState()
     var rfidTag by remember { mutableStateOf("") }
@@ -306,7 +308,8 @@ fun WeighScaleScreen(
                 ) {
                     CircleButton("Trolley", onClick = { tareViewModel.onTareClick() }, isTablet)
                     CircleButton("History", onClick = { viewModel.onViewClick() }, isTablet)
-                    CircleButton(text = "Report", onClick = { /*TODO*/ }, isTablet)
+                    CircleButton("Report", onClick = { viewModel.fetchSummaryDetails(); isReportVisible = true }, isTablet)
+
                 }
 
             }
@@ -336,7 +339,12 @@ fun WeighScaleScreen(
                 onDismiss = { viewModel.onPopupClose() }
             )
         }
-
+        if (isReportVisible) {
+            ReportScreen(
+                summaryDetails = viewModel.summaryDetails.observeAsState(emptyList()).value,
+                onDismiss = { isReportVisible = false } // Close the report screen when dismissed
+            )
+        }
         if (isTrolleyPopupVisible) {
             TrolleyListPopup(
                 trolleyList = trolleyList,

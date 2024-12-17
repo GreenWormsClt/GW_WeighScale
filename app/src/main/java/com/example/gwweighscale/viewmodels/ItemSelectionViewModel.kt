@@ -78,22 +78,34 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
         userId: Int,
         itemId: Int,
         date: String,
-        time: String
+        time: String,
+        onDuplicate: () -> Unit,
+        onSuccess: () -> Unit
     ) {
-        val newReport = ItemReport(
-            mrfId = mrfId,
-            plantId = plantId,
-            machineId = machineId,
-            weight = weight,
-            userId = userId,
-            itemId = itemId,
-            date = date,
-            time = time
-        )
-
-        // Launch on a background thread using viewModelScope
         viewModelScope.launch {
-            reportRepository.insertReport(newReport)
+            val isDuplicate = reportRepository.isDuplicateReport(
+                itemId = itemId,
+                userId = userId,
+                weight = weight,
+                date = date,
+                time = time
+            )
+            if (isDuplicate) {
+                onDuplicate()
+            } else {
+                val newReport = ItemReport(
+                    mrfId = mrfId,
+                    plantId = plantId,
+                    machineId = machineId,
+                    weight = weight,
+                    userId = userId,
+                    itemId = itemId,
+                    date = date,
+                    time = time
+                )
+                reportRepository.insertReport(newReport)
+                onSuccess()
+            }
         }
     }
 
@@ -126,4 +138,3 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
     }
 
 }
-

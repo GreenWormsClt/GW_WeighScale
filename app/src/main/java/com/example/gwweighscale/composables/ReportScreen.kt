@@ -1,14 +1,13 @@
 package com.example.gwweighscale.composables
 
-import android.os.Build
-import androidx.annotation.RequiresApi
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.material3.Button
-import androidx.compose.material3.Text
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -16,70 +15,89 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.gwweighscale.models.PopupData
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
+import com.example.gwweighscale.models.ReportData
 
-@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ReportScreen(
-    reportDetails: List<PopupData>, // List of report details
-    onBackClick: () -> Unit // Callback for back button click
+    summaryDetails: List<ReportData>,
+    onDismiss: () -> Unit
 ) {
-    // Group data by staff name, then by item name, and sum weights
-    val groupedData = reportDetails.groupBy { it.staffName }
-        .mapValues { (_, entries) ->
-            entries.groupBy { it.itemName }.mapValues { (_, items) ->
-                items.sumOf { it.weight }
-            }
-        }
-
-    Column(
+    Box(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
-            .verticalScroll(rememberScrollState()), // Enable vertical scrolling
-        horizontalAlignment = Alignment.Start // Align text to start
+            .background(Color.White)
     ) {
-        // Display the current date
-        val currentDate = LocalDate.now().format(DateTimeFormatter.ofPattern("dd/MM/yyyy"))
-        Text(
-            text = "Report Date: $currentDate",
-            fontSize = 20.sp,
-            fontWeight = FontWeight.Bold,
-            color = Color.Black,
-            modifier = Modifier.padding(bottom = 16.dp)
-        )
-
-        // Display grouped data
-        groupedData.forEach { (staffName, itemData) ->
-            // Staff Name Header
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+                .verticalScroll(rememberScrollState())
+        ) {
+            // Title
             Text(
-                text = staffName,
-                fontSize = 18.sp,
+                text = "Summary Report",
                 fontWeight = FontWeight.Bold,
-                color = Color.Black,
-                modifier = Modifier.padding(vertical = 8.dp)
+                fontSize = 24.sp,
+                color = Color(0xFF026163),
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(bottom = 16.dp)
             )
-            // Item Details for the Staff
-            itemData.forEach { (itemName, totalWeight) ->
+
+            // Group data by staff name and display
+            if (summaryDetails.isNotEmpty()) {
+                val groupedData = summaryDetails.groupBy { it.staffName }
+
+                groupedData.forEach { (staffName, staffData) ->
+                    // Display date (Assume all items for the same staff are on the same date)
+                    Text(
+                        text = "Staff Name: $staffName",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp,
+                        color = Color.Black,
+                        modifier = Modifier.padding(top = 8.dp, bottom = 4.dp)
+                    )
+
+                    staffData.forEach { data ->
+                        Text(
+                            text = "Item: ${data.itemName}, Total Weight: ${data.totalWeight} KG",
+                            fontSize = 18.sp,
+                            color = Color.Black,
+                            modifier = Modifier.padding(start = 16.dp, top = 4.dp)
+                        )
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                }
+            } else {
                 Text(
-                    text = "- $itemName: ${totalWeight}kg",
-                    fontSize = 16.sp,
+                    text = "No data available",
                     color = Color.Gray,
-                    modifier = Modifier.padding(start = 16.dp, bottom = 4.dp)
+                    modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
-        }
 
-        // Back Button
-        Button(
-            onClick = onBackClick, // Handle back navigation
-            modifier = Modifier
-                .align(Alignment.CenterHorizontally)
-                .padding(top = 16.dp)
-        ) {
-            Text(text = "Back")
+            Spacer(modifier = Modifier.height(26.dp))
+
+            // Close Button
+            androidx.compose.material.IconButton(
+                onClick = onDismiss,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .size(48.dp)
+                    .background(
+                        color = androidx.compose.material3.MaterialTheme.colorScheme.error.copy(
+                            alpha = 0.2f
+                        ),
+                        shape = RoundedCornerShape(24.dp)
+                    )
+            ) {
+                androidx.compose.material.Icon(
+                    Icons.Default.Close,
+                    contentDescription = "Close",
+                    tint = androidx.compose.material3.MaterialTheme.colorScheme.error
+                )
+            }
         }
     }
 }

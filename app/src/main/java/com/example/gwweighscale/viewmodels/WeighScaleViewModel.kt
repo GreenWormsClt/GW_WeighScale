@@ -9,6 +9,7 @@ import androidx.lifecycle.MutableLiveData
 import com.example.gwweighscale.models.PopupData
 //import com.example.gwweighscale.models.TareModel
 import androidx.lifecycle.viewModelScope
+import com.example.gwweighscale.models.ReportData
 import com.example.gwweighscale.repository.StaffRepository
 import com.example.gwweighscale.repository.WeighScaleRepository
 import com.example.gwweighscale.rooms.database.AppDatabase
@@ -108,7 +109,26 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
                 }
         }
     }
+    fun onViewclick() {
+        fetchSummaryDetails() // Fetch report details when View is clicked
+        _isPopupVisible.value = true
+    }
 
+    fun onPopupclose() {
+        _isPopupVisible.value = false
+    }
+
+    private val _summaryDetails = MutableLiveData<List<ReportData>>() // Added
+    val summaryDetails: LiveData<List<ReportData>> = _summaryDetails // Added
+
+    fun fetchSummaryDetails() {
+        viewModelScope.launch {
+            val dao = AppDatabase.getDatabase(getApplication<Application>()).itemReportDao()
+            dao.getSummaryDetails().observeForever { details ->
+                _summaryDetails.value = details
+            }
+        }
+    }
 
 
 
