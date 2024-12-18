@@ -58,7 +58,6 @@ fun ItemSelectionScreen(
     val context = LocalContext.current
     val items by viewModel.allItems.observeAsState(emptyList())
 
-
     val configuration = LocalConfiguration.current
     fun cleanAndParseWeight(weight: String): Float {
         return weight.replace("[^0-9.]".toRegex(), "").toFloatOrNull() ?: 0.0f

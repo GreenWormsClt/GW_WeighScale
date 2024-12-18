@@ -1,5 +1,7 @@
 package com.example.gwweighscale.composables
 
+import android.content.Context
+import android.widget.Button
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
@@ -17,7 +19,6 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
@@ -25,9 +26,15 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.example.gwweighscale.fontfamily.InriaSerif
 import com.example.gwweighscale.models.PopupData
+import androidx.compose.material3.Button
 
 @Composable
-fun PopupScreen(reportDetails: List<PopupData>, onDismiss: () -> Unit) {
+fun PopupScreen(
+    reportDetails: List<PopupData>,
+    onDismiss: () -> Unit,
+    exportToExcel: (Context) -> Unit,
+    context: Context
+) {
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -51,16 +58,30 @@ fun PopupScreen(reportDetails: List<PopupData>, onDismiss: () -> Unit) {
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // Title
-                    Text(
-                        text = "Report Details",
-                        fontSize = 24.sp,
-                        fontWeight = FontWeight.Bold,
-                        fontFamily = InriaSerif,
-                        color = Color(0xFF026163),
-                        modifier = Modifier.padding(bottom = 16.dp),
-                        textAlign = TextAlign.Center
-                    )
+
+                    // Title Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text(
+                            text = "Report Details",
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = InriaSerif,
+                            color = Color(0xFF026163),
+                            textAlign = TextAlign.Start
+                        )
+                        Button(
+                            onClick = { exportToExcel(context) },
+                            modifier = Modifier.padding(8.dp)
+                        ) {
+                            Text("Download Excel")
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(16.dp))
 
                     // Table Header
                     Row(

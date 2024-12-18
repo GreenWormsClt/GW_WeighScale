@@ -28,6 +28,8 @@ class ItemReportRepository(private val itemReportDao: ItemReportDao) {
     fun getSummaryDetails(): LiveData<List<ReportData>> {
         return itemReportDao.getSummaryDetails()
     }
-
+    suspend fun getAllReportsSync(): List<ItemReport> {
+        return itemReportDao.getAllReportsSync() // Create this DAO method
+    }
 }
 

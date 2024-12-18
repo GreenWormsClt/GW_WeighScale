@@ -19,7 +19,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -33,7 +32,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gwweighscale.R
 import com.example.gwweighscale.fontfamily.InriaSerif
 import com.example.gwweighscale.viewmodels.WeighScaleViewModel
-import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.BasicTextField
@@ -47,20 +45,17 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
-import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.zIndex
-import androidx.core.view.ViewCompat
-import androidx.core.view.WindowInsetsCompat
-import com.example.gwweighscale.models.ReportData
+import androidx.navigation.NavController
 import com.example.gwweighscale.rooms.entities.Tare
+import com.example.gwweighscale.utils.ExcelExporter
 import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.TareViewModel
 
@@ -75,7 +70,8 @@ fun WeighScaleScreen(
     viewModel: WeighScaleViewModel = viewModel(),
     onNavigateToDeviceList: () -> Unit,
     onNavigateToLogin: () -> Unit, // Pass the navigation callback to LoginScreen
-    onNavigateToItemSelection: (String, String, String, String, String) -> Unit
+    onNavigateToItemSelection: (String, String, String, String, String) -> Unit,
+    navController: NavController
 ) {
     val configuration = LocalConfiguration.current
     val screenWidth = configuration.screenWidthDp.dp
@@ -250,30 +246,30 @@ fun WeighScaleScreen(
 
             // Removed the Image and its surrounding Column
 //            Column(modifier = Modifier.fillMaxSize()) {
-           //     var matchedStaffName by remember { mutableStateOf<String?>(null) }
+            //     var matchedStaffName by remember { mutableStateOf<String?>(null) }
 
-                BasicTextField(
-                    value = rfidTag,
-                    onValueChange = { input ->
-                        onRFIDTapped(input)
-                    },
-                    modifier = Modifier
-                        .focusRequester(focusRequester) // Attach the focus requester
-                        .alpha(0f) // Make the TextField invisible
-                        .height(0.dp) // Reduce the height to 0
-                        .focusable(true), // Disable the keyboard trigger
-                    keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
-                    keyboardActions = KeyboardActions(
-                        onDone = {
-                            keyboardController?.hide() // Hide the keyboard after "Done"
-                        }
-                    ),
-                    singleLine = true,
-                    decorationBox = {}
+            BasicTextField(
+                value = rfidTag,
+                onValueChange = { input ->
+                    onRFIDTapped(input)
+                },
+                modifier = Modifier
+                    .focusRequester(focusRequester) // Attach the focus requester
+                    .alpha(0f) // Make the TextField invisible
+                    .height(0.dp) // Reduce the height to 0
+                    .focusable(true), // Disable the keyboard trigger
+                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = {
+                        keyboardController?.hide() // Hide the keyboard after "Done"
+                    }
+                ),
+                singleLine = true,
+                decorationBox = {}
 
-                )
+            )
             //    Spacer(modifier = Modifier.height(16.dp))
-          //  }
+            //  }
             Spacer(modifier = Modifier.weight(1f))
 
             Row(
@@ -308,7 +304,11 @@ fun WeighScaleScreen(
                 ) {
                     CircleButton("Trolley", onClick = { tareViewModel.onTareClick() }, isTablet)
                     CircleButton("History", onClick = { viewModel.onViewClick() }, isTablet)
-                    CircleButton("Report", onClick = { viewModel.fetchSummaryDetails(); isReportVisible = true }, isTablet)
+                    CircleButton(
+                        "Report",
+                        onClick = { viewModel.fetchSummaryDetails(); isReportVisible = true },
+                        isTablet
+                    )
 
                 }
 
@@ -334,9 +334,19 @@ fun WeighScaleScreen(
 
         // Display the popups based on ViewModel state
         if (isPopupVisible) {
+            // Observe reportDetails once in the composable scope
+            val reportDetails = viewModel.reportDetails.observeAsState(emptyList()).value
+
             PopupScreen(
-                reportDetails = viewModel.reportDetails.observeAsState(emptyList()).value,
-                onDismiss = { viewModel.onPopupClose() }
+                reportDetails = reportDetails,
+                onDismiss = { viewModel.onPopupClose() },
+                exportToExcel = { context ->
+                    ExcelExporter.exportReportData(
+                        context = context,
+                        reportData = reportDetails // Use the observed reportDetails here
+                    )
+                },
+                context = context
             )
         }
         if (isReportVisible) {

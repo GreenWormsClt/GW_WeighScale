@@ -11,7 +11,7 @@ android {
 
     defaultConfig {
         applicationId = "com.example.gwweighscale"
-        minSdk = 24
+        minSdk = 26
         targetSdk = 34
         versionCode = 1
         versionName = "1.0"
@@ -92,8 +92,20 @@ dependencies {
     implementation("androidx.room:room-runtime:2.6.0")
     ksp("androidx.room:room-compiler:2.6.0")
     implementation("androidx.room:room-ktx:2.6.0")
+    implementation ("org.apache.poi:poi:5.2.3")
 
-    implementation("androidx.activity:activity-compose:1.7.0")
+    // Apache POI dependencies with log4j-core excluded
+    implementation("org.apache.poi:poi:5.2.3") {
+        exclude(group = "org.apache.logging.log4j", module = "log4j-core")
+    }
+    implementation("org.apache.poi:poi-ooxml:5.2.3") {
+        exclude(group = "org.apache.logging.log4j", module = "log4j-core")
+    }
+
+    // SLF4J with AndroidLogger
+    implementation("org.slf4j:slf4j-api:1.7.36")
+    implementation("com.github.tony19:logback-android:2.0.0")
+    implementation ("org.apache.poi:poi-ooxml-lite:4.1.2")
 
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.7.3")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-android:1.7.3")

@@ -132,7 +132,8 @@ fun WeighScaleApp(
                 },
                 onNavigateToDeviceList = {
                     navController.navigate("bluetooth_list")
-                }
+                },
+                navController = navController
             )
         }
         // Item Selection Screen

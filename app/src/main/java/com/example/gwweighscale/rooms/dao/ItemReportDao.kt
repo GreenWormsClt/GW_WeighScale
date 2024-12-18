@@ -58,5 +58,8 @@ interface ItemReportDao {
 """)
     fun getSummaryDetails(): LiveData<List<ReportData>>
 
+    @Query("SELECT * FROM item_reports")
+    suspend fun getAllReportsSync(): List<ItemReport>
+
 }
 

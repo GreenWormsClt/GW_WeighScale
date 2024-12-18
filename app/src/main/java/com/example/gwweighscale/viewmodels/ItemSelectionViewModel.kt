@@ -51,6 +51,7 @@ import android.app.Application
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
 import com.example.gwweighscale.repository.ItemReportRepository
 import com.example.gwweighscale.repository.ItemRepository
 import com.example.gwweighscale.rooms.database.AppDatabase
@@ -60,7 +61,6 @@ import kotlinx.coroutines.launch
 
 
 class ItemSelectionViewModel(application: Application) : AndroidViewModel(application) {
-
     private val reportRepository: ItemReportRepository
     val allReports: LiveData<List<ItemReport>>
 
