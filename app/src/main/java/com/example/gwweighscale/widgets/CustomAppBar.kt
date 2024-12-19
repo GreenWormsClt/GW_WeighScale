@@ -32,6 +32,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gwweighscale.fontfamily.InriaSerif
+import com.example.gwweighscale.rooms.entities.Staff
 import com.example.gwweighscale.rooms.entities.Tare
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3Api::class)
@@ -45,6 +46,7 @@ fun CustomAppBar(
     fontFamily: FontFamily = InriaSerif,
     onTrolleyAdded: (Tare) -> Unit,
     imageRes: Int,
+    onAddStaff: (Staff) -> Unit,
     onNavigateToDeviceList: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -52,6 +54,7 @@ fun CustomAppBar(
     var showAddTrolleyDialog by remember { mutableStateOf(false) }
     var showLogoutDialog by remember { mutableStateOf(false) } // State to show/hide the dialog
     var showBluetoothDialog by remember { mutableStateOf(false) }
+    var showAddStaffDialog by remember { mutableStateOf(false) }
     CenterAlignedTopAppBar(
         title = {
             Row(
@@ -112,6 +115,16 @@ fun CustomAppBar(
                 )
                 DropdownMenuItem(
                     text = {
+                        Text("Add Staff", fontFamily = fontFamily, fontSize = 16.sp)
+                    },
+                    onClick = {
+                        expanded = false
+                        showAddStaffDialog = true
+                         // Trigger navigation to BluetoothDeviceListScreen
+                    }
+                )
+                DropdownMenuItem(
+                    text = {
                         Text(
                             text = "Logout",
                             fontFamily = fontFamily,
@@ -156,6 +169,12 @@ fun CustomAppBar(
                 // Handle save action, e.g., add to database or state
                 println("Trolley Name: $name, Trolley Weight: $weight KG")
             }
+        )
+    }
+    if (showAddStaffDialog) {
+        AddStaffDialog(
+            onDismiss = { showAddStaffDialog = false },
+            onSave = onAddStaff
         )
     }
     // Logout confirmation dialog

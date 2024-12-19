@@ -155,6 +155,7 @@ fun WeighScaleApp(
 
             ItemSelectionScreen(
                 onNavigateToWeighScale = {
+
                     navController.navigate("home") {
                         popUpTo("home") { inclusive = true }
                     }
@@ -163,7 +164,8 @@ fun WeighScaleApp(
                 trolleyName = trolleyName,
                 trolleyWeight = trolleyWeight,
                 netWeight = netWeight,
-                staffId = staffId
+                staffId = staffId,
+
             )
         }
         // Bluetooth Device List Screen

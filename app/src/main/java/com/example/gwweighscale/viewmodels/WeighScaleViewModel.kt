@@ -14,6 +14,7 @@ import com.example.gwweighscale.repository.StaffRepository
 import com.example.gwweighscale.repository.WeighScaleRepository
 import com.example.gwweighscale.rooms.database.AppDatabase
 import com.example.gwweighscale.rooms.entities.Staff
+import com.example.gwweighscale.rooms.entities.Tare
 import com.example.gwweighscale.rooms.entities.WeighScale
 import kotlinx.coroutines.launch
 
@@ -41,6 +42,14 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
         return allWeighScales.value?.find { it.machineCode == machineCode }
     }
 
+    // Store selected trolley
+    private val _selectedTrolley = MutableLiveData<Tare?>()
+    val selectedTrolley: LiveData<Tare?> = _selectedTrolley
+
+    fun setSelectedTrolley(trolley: Tare) {
+        _selectedTrolley.value = trolley
+    }
+
     private val repository: StaffRepository
     val allStaffs: LiveData<List<Staff>>
 
@@ -63,7 +72,9 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
         _rfidMatch.postValue(staff) // Update LiveData for observers
         return staff?.id // Return the staff object
     }
-
+    fun insertStaff(staff: Staff) = viewModelScope.launch {
+        AppDatabase.getDatabase(getApplication()).staffDao().insert(staff)
+    }
 
 
     private val _calculatedWeight = MutableLiveData<Double>()

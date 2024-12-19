@@ -10,10 +10,10 @@ import com.example.gwweighscale.rooms.entities.Staff
 @Dao
 interface StaffDao {
     @Query("SELECT * FROM staff WHERE rfid = :rfid LIMIT 1")
-     fun getStaffByRfid(rfid: String): LiveData<Staff?>
+    fun getStaffByRfid(rfid: String): LiveData<Staff?>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertAll(staff: List<Staff>)
+    suspend fun insert(staff: Staff)
 
     @Query("SELECT * FROM staff")
     fun getAllStaff(): LiveData<List<Staff>>

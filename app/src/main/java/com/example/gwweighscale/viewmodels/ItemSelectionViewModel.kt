@@ -114,27 +114,16 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
     val allItems: LiveData<List<Item>>
 
     init {
-        // Initialize database and repository
         val itemDao = AppDatabase.getDatabase(application).itemDao()
         repository = ItemRepository(itemDao)
         allItems = repository.allItems
     }
 
-    fun insert(item: Item) = viewModelScope.launch {
+    fun insertItem(item: Item) = viewModelScope.launch {
         repository.insert(item)
     }
 
-    fun insertAll(items: List<Item>) = viewModelScope.launch {
-        repository.insertAll(items)
-    }
-
-    fun addItem(itemId:Int ,itemName: String) = viewModelScope.launch {
-        val newItem = Item(itemId = itemId, itemName = itemName) // Create a new item
-        repository.insert(newItem) // Add to the database
-    }
-
-    fun delete(item: Item) = viewModelScope.launch {
+    fun deleteItem(item: Item) = viewModelScope.launch {
         repository.delete(item)
-    }
+    }}
 
-}

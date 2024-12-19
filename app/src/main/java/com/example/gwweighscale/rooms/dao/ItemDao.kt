@@ -11,7 +11,7 @@ interface ItemDao {
     fun getAllItems(): LiveData<List<Item>>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend  fun insertItem(item: Item)
+    suspend fun insertItem(item: Item) // Accepts a single item
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertItems(items: List<Item>)

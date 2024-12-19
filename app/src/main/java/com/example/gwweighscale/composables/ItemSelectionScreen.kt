@@ -2,6 +2,9 @@ package com.example.gwweighscale.composables
 
 import android.adservices.adid.AdId
 import android.util.Log
+import kotlin.random.Random
+import java.math.BigInteger
+import java.security.MessageDigest
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,8 +15,11 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.AlertDialog
+import androidx.compose.material.Button
 import androidx.compose.material.FloatingActionButton
 import androidx.compose.material.Text
+import androidx.compose.material.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -32,13 +38,18 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.gwweighscale.R
 //import com.example.gwweighscale.Rooms.Entities.ItemReport
 import com.example.gwweighscale.fontfamily.InriaSerif
+import com.example.gwweighscale.rooms.entities.Item
+import com.example.gwweighscale.utils.generateColorFromString
 import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.ItemSelectionViewModel
 import com.example.gwweighscale.viewmodels.WeighScaleViewModel
+import com.example.gwweighscale.widgets.AddItemDialog
 import com.example.gwweighscale.widgets.ConfirmationDialog
+import com.example.gwweighscale.widgets.CountdownDialog
 import com.example.gwweighscale.widgets.ItemSelectionAlert
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -57,6 +68,10 @@ fun ItemSelectionScreen(
 ) {
     val context = LocalContext.current
     val items by viewModel.allItems.observeAsState(emptyList())
+    var showAddItemDialog by remember { mutableStateOf(false) }
+    var newItemName by remember { mutableStateOf("") }
+
+
 
     val configuration = LocalConfiguration.current
     fun cleanAndParseWeight(weight: String): Float {
@@ -70,6 +85,8 @@ fun ItemSelectionScreen(
     // Calculate total weight
     val totalWeight = tNetWeight - tTrolleyWeight
     val formattedTotalWeight = String.format("%.3f", totalWeight)
+    var showCountdownDialog by remember { mutableStateOf(false) }
+    val countdownMinutes = 15
 
     val columns =
         if (configuration.orientation == android.content.res.Configuration.ORIENTATION_PORTRAIT) {
@@ -97,6 +114,13 @@ fun ItemSelectionScreen(
 //                .verticalScroll(rememberScrollState())
                 .align(Alignment.TopEnd)
         ) {
+
+            Button(
+                onClick = { showAddItemDialog = true },
+                modifier = Modifier.padding(8.dp)
+            ) {
+                Text("Add item")
+            }
             Text(
                 text = "STAFF NAME:  $staffName",
                 fontWeight = FontWeight.Bold,
@@ -177,11 +201,7 @@ fun ItemSelectionScreen(
                     date = currentDate,
                     time = currentTime,
                     onDuplicate = {
-                        Toast.makeText(
-                            context,
-                            "Duplicate entry within 5 minutes is not allowed!",
-                            Toast.LENGTH_SHORT
-                        ).show()
+                        showCountdownDialog = true
                     },
                     onSuccess = {
                         Toast.makeText(
@@ -189,6 +209,9 @@ fun ItemSelectionScreen(
                             "Item $selectedItem added successfully!",
                             Toast.LENGTH_SHORT
                         ).show()
+                        // Save the trolley and selected item data to savedStateHandle
+
+                        // Navigate back to the WeighScaleScreen
                         onNavigateToWeighScale()
                     }
                 )
@@ -198,7 +221,16 @@ fun ItemSelectionScreen(
         )
     }
 
-
+    if (showCountdownDialog) {
+        CountdownDialog(
+            onDismiss = { showCountdownDialog = false },
+            initialMinutes = countdownMinutes,
+            onTimeOut = {
+                showCountdownDialog = false
+                // Action to perform after the countdown ends
+            }
+        )
+    }
 
     if (showItemPopup) {
         // Filter items to display only the 13th and beyond
@@ -227,17 +259,41 @@ fun ItemSelectionScreen(
             onDismissRequest = { showItemPopup = false }
         )
     }
+    if (showAddItemDialog) {
+        AddItemDialog(
+            newItemName = newItemName,
+            onValueChange = { newItemName = it },
+            onConfirm = {
+                if (newItemName.isNotBlank()) {
+                    viewModel.insertItem(Item(itemId = 0, itemName = newItemName))
+                    Toast.makeText(context, "Item added successfully!", Toast.LENGTH_SHORT).show()
+                    newItemName = ""
+                    showAddItemDialog = false
+                } else {
+                    Toast.makeText(context, "Item name cannot be empty!", Toast.LENGTH_SHORT).show()
+                }
+            },
+            onDismiss = { showAddItemDialog = false }
+        )
+    }
 }
+
+
 
 
 @Composable
 fun ItemButton(item: String, onItemSelected: (String) -> Unit) {
+    // Generate a static color based on the item string
+    val staticColor = remember(item) {
+        generateColorFromString(item)
+    }
+
     Box(
         modifier = Modifier
             .width(200.dp)
             .height(80.dp)
             .shadow(5.dp, RoundedCornerShape(8.dp))
-            .background(colorResource(id = R.color.GWGreen), RoundedCornerShape(8.dp))
+            .background(staticColor, RoundedCornerShape(8.dp))
             .clickable { onItemSelected(item) },
         contentAlignment = Alignment.Center
     ) {
@@ -250,3 +306,4 @@ fun ItemButton(item: String, onItemSelected: (String) -> Unit) {
         )
     }
 }
+

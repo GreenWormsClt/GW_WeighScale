@@ -106,6 +106,14 @@ fun WeighScaleScreen(
     val date by bluetoothViewModel.date
     var selectedTrolley by remember { mutableStateOf<Tare?>(null) }
     val keyboardController = LocalSoftwareKeyboardController.current
+    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
+
+    // Retrieve updated trolley and item data if available
+    val updatedTrolleyData = savedStateHandle?.get<Pair<String, String>>("trolleyData")
+    val (updatedTrolleyName, updatedTrolleyWeight) = updatedTrolleyData ?: Pair("", "")
+
+    val updatedItemData = savedStateHandle?.get<String>("selectedItem")
+
     LaunchedEffect(Unit) {
         keyboardController?.hide()
         bluetoothViewModel.connect()
@@ -137,6 +145,9 @@ fun WeighScaleScreen(
                     onNavigateToLogin() // Navigate to the Login screen
                 },
                 onExitClick = { /* Handle Exit action */ },
+                onAddStaff = { staff ->
+                    viewModel.insertStaff(staff)
+                },
                 modifier = Modifier.zIndex(1f),
                 onNavigateToLogin = onNavigateToLogin// Pass the callback for login navigation // Optional, you can pass a modifier if needed
             )
@@ -190,7 +201,32 @@ fun WeighScaleScreen(
                         )
                     }
                 }
+//                val updatedTrolleyData = navController.currentBackStackEntry?.savedStateHandle?.get<Pair<String, String>>("trolleyData")
+//                val updatedTrolleyName = updatedTrolleyData?.first
+//                val updatedTrolleyWeight = updatedTrolleyData?.second
+
+                if (!updatedTrolleyName.isNullOrEmpty() && !updatedTrolleyWeight.isNullOrEmpty()) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalAlignment = Alignment.End
+                    ) {
+                        Text(
+                            text = "Trolley Name: $updatedTrolleyName",
+                            fontSize = if (isTablet) 20.sp else 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = InriaSerif
+                        )
+                        Text(
+                            text = "Trolley Weight: $updatedTrolleyWeight",
+                            fontSize = if (isTablet) 20.sp else 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            fontFamily = InriaSerif
+                        )
+                    }
+                }
+
             }
+
 
             fun onRFIDTapped(input: String) {
                 Log.d("RFID_Debug", "RFID Input: $input")

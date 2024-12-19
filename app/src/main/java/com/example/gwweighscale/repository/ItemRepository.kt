@@ -1,3 +1,4 @@
+// File: Repository/ItemRepository.kt
 package com.example.gwweighscale.repository
 
 import androidx.lifecycle.LiveData
@@ -8,7 +9,7 @@ class ItemRepository(private val itemDao: ItemDao) {
     val allItems: LiveData<List<Item>> = itemDao.getAllItems()
 
     suspend fun insert(item: Item) {
-        itemDao.insertItem(item)
+        itemDao.insertItem(item) // Insert a single item
     }
 
     suspend fun insertAll(items: List<Item>) {
@@ -19,4 +20,3 @@ class ItemRepository(private val itemDao: ItemDao) {
         itemDao.deleteItem(item)
     }
 }
-

@@ -76,28 +76,27 @@ fun ReportScreen(
                     modifier = Modifier.align(Alignment.CenterHorizontally)
                 )
             }
+        }
 
-            Spacer(modifier = Modifier.height(26.dp))
-
-            // Close Button
-            androidx.compose.material.IconButton(
-                onClick = onDismiss,
-                modifier = Modifier
-                    .align(Alignment.CenterHorizontally)
-                    .size(48.dp)
-                    .background(
-                        color = androidx.compose.material3.MaterialTheme.colorScheme.error.copy(
-                            alpha = 0.2f
-                        ),
-                        shape = RoundedCornerShape(24.dp)
-                    )
-            ) {
-                androidx.compose.material.Icon(
-                    Icons.Default.Close,
-                    contentDescription = "Close",
-                    tint = androidx.compose.material3.MaterialTheme.colorScheme.error
+        // Close Button aligned at the bottom
+        androidx.compose.material.IconButton(
+            onClick = onDismiss,
+            modifier = Modifier
+                .align(Alignment.BottomCenter) // Align at the bottom
+                .padding(16.dp)
+                .size(48.dp)
+                .background(
+                    color = androidx.compose.material3.MaterialTheme.colorScheme.error.copy(
+                        alpha = 0.2f
+                    ),
+                    shape = RoundedCornerShape(24.dp)
                 )
-            }
+        ) {
+            androidx.compose.material.Icon(
+                Icons.Default.Close,
+                contentDescription = "Close",
+                tint = androidx.compose.material3.MaterialTheme.colorScheme.error
+            )
         }
     }
 }

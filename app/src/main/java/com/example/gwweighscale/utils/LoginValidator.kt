@@ -3,7 +3,7 @@ package com.example.gwweighscale.utils
 class LoginValidator {
 
     companion object {
-        private const val VALID_MACHINE_CODE = "1"
+        private const val VALID_MACHINE_CODE = "GWASSET001"
         private const val VALID_PASSWORD = "2"
         private const val PASSWORD_LENGTH = 1
 
