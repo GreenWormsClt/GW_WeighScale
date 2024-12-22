@@ -17,9 +17,18 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
 import androidx.compose.material.Button
+import androidx.compose.material.DropdownMenu
 import androidx.compose.material.FloatingActionButton
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
+import androidx.compose.material.Scaffold
 import androidx.compose.material.Text
 import androidx.compose.material.TextField
+import androidx.compose.material.TopAppBar
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
@@ -55,11 +64,13 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+
 @Composable
 fun ItemSelectionScreen(
     viewModel: ItemSelectionViewModel = viewModel(),
     weighviemodel: WeighScaleViewModel = viewModel(),
     onNavigateToWeighScale: () -> Unit,
+    onNavigateToItemList:() -> Unit,
     staffName: String,
     trolleyName: String,
     trolleyWeight: String,
@@ -70,7 +81,6 @@ fun ItemSelectionScreen(
     val items by viewModel.allItems.observeAsState(emptyList())
     var showAddItemDialog by remember { mutableStateOf(false) }
     var newItemName by remember { mutableStateOf("") }
-
 
 
     val configuration = LocalConfiguration.current
@@ -102,81 +112,126 @@ fun ItemSelectionScreen(
     var showItemPopup by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf("") }
 
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .padding(16.dp)
-    ) {
-        Column(
-            horizontalAlignment = Alignment.End,
-            modifier = Modifier
-                .fillMaxWidth()
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = {
+                    Text(
+                        text = "Choose Item",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { onNavigateToWeighScale() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Back")
+                    }
+                },
+                actions = {
+                    var showMenu by remember { mutableStateOf(false) }
+
+                    IconButton(onClick = { showMenu = !showMenu }) {
+                        Icon(Icons.Default.MoreVert, contentDescription = "Menu")
+                    }
+
+                    DropdownMenu(
+                        expanded = showMenu,
+                        onDismissRequest = { showMenu = false }
+                    ) {
+                        DropdownMenuItem(
+                            text = {
+                                androidx.compose.material3.Text(
+                                    "Add items"
+                                )
+                            },
+                            onClick = {
+                                showMenu = false
+                                showAddItemDialog = true
+                            }
+                        )
+
+                        DropdownMenuItem(
+                            text = {
+                                androidx.compose.material3.Text("List Items")
+                            },
+                            onClick = {
+                                showMenu = false
+                                onNavigateToItemList()
+                            }
+                        )
+
+                    }
+
+                },
+                backgroundColor = Color(0xFF026163), // Custom color for the app bar
+                contentColor = Color.White,
+                elevation = 4.dp
+            )
+        },
+        content = { paddingValues   ->
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.End,
+                    modifier = Modifier
+                        .fillMaxWidth()
 //                .verticalScroll(rememberScrollState())
-                .align(Alignment.TopEnd)
-        ) {
+                        .align(Alignment.TopEnd)
+                ) {
 
-            Button(
-                onClick = { showAddItemDialog = true },
-                modifier = Modifier.padding(8.dp)
-            ) {
-                Text("Add item")
-            }
-            Text(
-                text = "STAFF NAME:  $staffName",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "WEIGHT: $formattedTotalWeight KG",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(4.dp))
-            Text(
-                text = "TROLLEY: $trolleyName, $trolleyWeight KG",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            Text(
-                text = "Choose Item:",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                fontFamily = InriaSerif,
-                modifier = Modifier.align(Alignment.Start)
-            )
-            Spacer(modifier = Modifier.height(10.dp))
+                    Text(
+                        text = "STAFF NAME:  $staffName",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "WEIGHT: $formattedTotalWeight KG",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Spacer(modifier = Modifier.height(4.dp))
+                    Text(
+                        text = "TROLLEY: $trolleyName, $trolleyWeight KG",
+                        fontWeight = FontWeight.Bold,
+                        fontSize = 20.sp
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
 
+                    LazyVerticalGrid(
+                        columns = GridCells.Fixed(columns), // 4 columns
+                        contentPadding = PaddingValues(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
+                        horizontalArrangement = Arrangement.spacedBy(16.dp),
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        items(allItems) { item ->
+                            ItemButton(
+                                item = item,
+                                onItemSelected = { selectedItemName ->
+                                    selectedItem = selectedItemName
+                                    showDialog = true
+                                })
+                        }
+                    }
 
-            LazyVerticalGrid(
-                columns = GridCells.Fixed(columns), // 4 columns
-                contentPadding = PaddingValues(16.dp),
-                verticalArrangement = Arrangement.spacedBy(16.dp),
-                horizontalArrangement = Arrangement.spacedBy(16.dp),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                items(allItems) { item ->
-                    ItemButton(
-                        item = item,
-                        onItemSelected = { selectedItemName ->
-                            selectedItem = selectedItemName
-                            showDialog = true
-                        })
+                }
+                FloatingActionButton(
+                    onClick = { showItemPopup = true },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp),
+                    backgroundColor = colorResource(id = R.color.GWGreen)
+                ) {
+                    Text("+", color = Color.White, fontSize = 24.sp)
                 }
             }
+        }
+    )
 
-        }
-        FloatingActionButton(
-            onClick = { showItemPopup = true },
-            modifier = Modifier
-                .align(Alignment.BottomEnd)
-                .padding(16.dp),
-            backgroundColor = colorResource(id = R.color.GWGreen)
-        ) {
-            Text("+", color = Color.White, fontSize = 24.sp)
-        }
-    }
 
     if (showDialog) {
         // Get the selected item's ID
@@ -259,6 +314,7 @@ fun ItemSelectionScreen(
             onDismissRequest = { showItemPopup = false }
         )
     }
+
     if (showAddItemDialog) {
         AddItemDialog(
             newItemName = newItemName,
@@ -276,34 +332,34 @@ fun ItemSelectionScreen(
             onDismiss = { showAddItemDialog = false }
         )
     }
+
+
 }
 
 
+    @Composable
+    fun ItemButton(item: String, onItemSelected: (String) -> Unit) {
+        // Generate a static color based on the item string
+        val staticColor = remember(item) {
+            generateColorFromString(item)
+        }
 
-
-@Composable
-fun ItemButton(item: String, onItemSelected: (String) -> Unit) {
-    // Generate a static color based on the item string
-    val staticColor = remember(item) {
-        generateColorFromString(item)
+        Box(
+            modifier = Modifier
+                .width(200.dp)
+                .height(80.dp)
+                .shadow(5.dp, RoundedCornerShape(8.dp))
+                .background(staticColor, RoundedCornerShape(8.dp))
+                .clickable { onItemSelected(item) },
+            contentAlignment = Alignment.Center
+        ) {
+            Text(
+                text = item,
+                color = Color.White,
+                fontFamily = InriaSerif,
+                fontWeight = FontWeight.Bold,
+                fontSize = 18.sp
+            )
+        }
     }
-
-    Box(
-        modifier = Modifier
-            .width(200.dp)
-            .height(80.dp)
-            .shadow(5.dp, RoundedCornerShape(8.dp))
-            .background(staticColor, RoundedCornerShape(8.dp))
-            .clickable { onItemSelected(item) },
-        contentAlignment = Alignment.Center
-    ) {
-        Text(
-            text = item,
-            color = Color.White,
-            fontFamily = InriaSerif,
-            fontWeight = FontWeight.Bold,
-            fontSize = 18.sp
-        )
-    }
-}
 

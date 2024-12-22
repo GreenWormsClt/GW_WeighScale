@@ -34,7 +34,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gwweighscale.composables.ItemListScreen
 import com.example.gwweighscale.composables.ReportScreen
+import com.example.gwweighscale.composables.StaffListScreen
 
 
 class MainActivity : ComponentActivity() {
@@ -133,6 +135,9 @@ fun WeighScaleApp(
                 onNavigateToDeviceList = {
                     navController.navigate("bluetooth_list")
                 },
+                onNavigateToStaffList = { // Add this
+                    navController.navigate("staff_list")
+                },
                 navController = navController
             )
         }
@@ -160,6 +165,9 @@ fun WeighScaleApp(
                         popUpTo("home") { inclusive = true }
                     }
                 },
+                onNavigateToItemList = {
+                    navController.navigate("item_list")
+                },
                 staffName = staffName,
                 trolleyName = trolleyName,
                 trolleyWeight = trolleyWeight,
@@ -168,6 +176,19 @@ fun WeighScaleApp(
 
             )
         }
+        composable("item_list") {
+            ItemListScreen(
+                viewModel = viewModel(),
+                onNavigateBack = { navController.popBackStack() }
+            )
+        }
+        composable("staff_list") {
+            StaffListScreen(
+                viewModel = weighScaleViewModel,
+                navController = navController // Pass the NavController instance here
+            )
+        }
+
         // Bluetooth Device List Screen
         composable("bluetooth_list") {
             BluetoothDeviceListScreen(

@@ -14,14 +14,12 @@ object DataInitializer {
 
         CoroutineScope(Dispatchers.IO).launch {
 
-
             val defaultWeighScales = listOf(
                 WeighScale(1, 1, 1, "GWASSET001"),
                 WeighScale(2, 2, 2, "GWASSET002"),
                 WeighScale(3, 3, 3, "GWASSET003"),
             )
             database.weighScaleDao().insertWeighScales(defaultWeighScales)
-
 
         }
     }

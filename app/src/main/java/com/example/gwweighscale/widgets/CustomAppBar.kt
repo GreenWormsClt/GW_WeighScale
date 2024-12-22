@@ -42,6 +42,7 @@ fun CustomAppBar(
     iconRes: Int,
     onLogoutClick: () -> Unit,
     onExitClick: () -> Unit,
+    onNavigateToStaffList: () -> Unit,
     onNavigateToLogin: () -> Unit, // Add a navigation callback for login
     fontFamily: FontFamily = InriaSerif,
     onTrolleyAdded: (Tare) -> Unit,
@@ -111,6 +112,13 @@ fun CustomAppBar(
                     onClick = {
                         expanded = false
                         onNavigateToDeviceList() // Trigger navigation to BluetoothDeviceListScreen
+                    }
+                )
+                DropdownMenuItem(
+                    text = { Text("Manage Staff", fontFamily = fontFamily) },
+                    onClick = {
+                        expanded = false
+                        onNavigateToStaffList()
                     }
                 )
                 DropdownMenuItem(

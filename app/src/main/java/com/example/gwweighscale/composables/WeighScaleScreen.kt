@@ -69,6 +69,7 @@ fun WeighScaleScreen(
     tareViewModel: TareViewModel = viewModel(),
     viewModel: WeighScaleViewModel = viewModel(),
     onNavigateToDeviceList: () -> Unit,
+    onNavigateToStaffList: () -> Unit,
     onNavigateToLogin: () -> Unit, // Pass the navigation callback to LoginScreen
     onNavigateToItemSelection: (String, String, String, String, String) -> Unit,
     navController: NavController
@@ -149,6 +150,7 @@ fun WeighScaleScreen(
                     viewModel.insertStaff(staff)
                 },
                 modifier = Modifier.zIndex(1f),
+                onNavigateToStaffList = onNavigateToStaffList,
                 onNavigateToLogin = onNavigateToLogin// Pass the callback for login navigation // Optional, you can pass a modifier if needed
             )
 

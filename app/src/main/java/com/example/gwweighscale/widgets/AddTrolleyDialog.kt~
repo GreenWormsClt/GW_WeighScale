@@ -1,6 +1,5 @@
 package com.example.gwweighscale.widgets
 
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -54,9 +53,13 @@ fun AddTrolleyDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 12.dp, vertical = 10.dp)
-                )  {
+                        .border(
+                            width = 1.dp,
+                            color = if (isErrorName) MaterialTheme.colorScheme.error else Color(0xFF026163),
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .padding(8.dp)
+                ) {
                     BasicTextField(
                         value = trolleyName,
                         onValueChange = {
@@ -99,9 +102,13 @@ fun AddTrolleyDialog(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .background(Color(0xFFF0F0F0), RoundedCornerShape(8.dp))
-                        .padding(horizontal = 12.dp, vertical = 10.dp)
-                )  {
+                        .border(
+                            width = 1.dp,
+                            color = if (isErrorWeight) MaterialTheme.colorScheme.error else Color(0xFF026163),
+                            shape = MaterialTheme.shapes.small
+                        )
+                        .padding(8.dp)
+                ) {
 
 
                     BasicTextField(

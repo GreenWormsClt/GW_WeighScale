@@ -13,7 +13,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.gwweighscale.fontfamily.InriaSerif
@@ -29,13 +28,20 @@ fun AddItemDialog(
     AlertDialog(
         onDismissRequest = onDismiss,
         title = {
-            Text(
-                text = dialogTitle,
-                color = Color(0xFF026163), // Title color
-                fontSize = 22.sp,
-                fontFamily = InriaSerif,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .background(Color.White) // Title background color
+                    .padding(vertical = 12.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Text(
+                    text = dialogTitle,
+                    color = Color(0xFF026163), // Title text color
+                    fontSize = 22.sp,
+                    fontFamily = InriaSerif
+                )
+            }
         },
         text = {
             Column(
@@ -48,23 +54,23 @@ fun AddItemDialog(
                     text = "Enter item name:",
                     fontSize = 16.sp,
                     fontFamily = InriaSerif,
-                    color = Color(0xFF026163),
+                    color = Color(0xFF026163), // Label color
                     modifier = Modifier.padding(bottom = 8.dp)
                 )
 
-                // Custom BasicTextField
+                // Custom BasicTextField for input
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(
-                            color = Color(0xFFE8E8E8), // Light gray background for input
+                            color = Color(0xFFF0F0F0), // Light gray background for text field
                             shape = RoundedCornerShape(8.dp)
                         )
                         .padding(horizontal = 16.dp, vertical = 12.dp)
                 ) {
                     if (newItemName.isEmpty()) {
                         Text(
-                            text = "Item name",
+                            text = "Enter item name",
                             color = Color.Gray,
                             fontSize = 14.sp,
                             fontFamily = InriaSerif
@@ -86,13 +92,12 @@ fun AddItemDialog(
         confirmButton = {
             Button(
                 onClick = onConfirm,
-                colors = androidx.compose.material.ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF026163) // Button background color
-                ),
                 modifier = Modifier
-                    .padding(8.dp)
-                    .height(48.dp),
-                shape = RoundedCornerShape(24.dp)
+                    .padding( 8.dp),
+                shape = RoundedCornerShape(25.dp),
+                colors = androidx.compose.material.ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF026163) // Button color
+                )
             ) {
                 Text(
                     text = "Add",
@@ -105,13 +110,12 @@ fun AddItemDialog(
         dismissButton = {
             Button(
                 onClick = onDismiss,
-                colors = androidx.compose.material.ButtonDefaults.buttonColors(
-                    backgroundColor = Color(0xFF026163) // Button background color
-                ),
                 modifier = Modifier
-                    .padding(8.dp)
-                    .height(48.dp),
-                shape = RoundedCornerShape(24.dp)
+                    .padding(8.dp),
+                shape = RoundedCornerShape(25.dp),
+                colors = androidx.compose.material.ButtonDefaults.buttonColors(
+                    backgroundColor = Color(0xFF026163) // Button color
+                )
             ) {
                 Text(
                     text = "Cancel",
@@ -122,6 +126,6 @@ fun AddItemDialog(
             }
         },
         backgroundColor = Color.White, // Dialog background color
-        contentColor = Color.Black // Content color
+        contentColor = Color.Black // Content color for the dialog
     )
 }

@@ -59,6 +59,17 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
         allStaffs = repository.allStaff
     }
 
+    fun insertStaff(staff: Staff) = viewModelScope.launch {
+        repository.insert(staff)
+    }
+
+    fun deleteStaff(staff: Staff) = viewModelScope.launch {
+        repository.delete(staff)
+    }
+
+    fun getStaffByRfid(rfid: String): LiveData<Staff?> {
+        return repository.getStaffByRfid(rfid)
+    }
     private val _rfidMatch = MutableLiveData<Staff?>()
     val rfidMatch: LiveData<Staff?> = _rfidMatch
 
@@ -72,10 +83,9 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
         _rfidMatch.postValue(staff) // Update LiveData for observers
         return staff?.id // Return the staff object
     }
-    fun insertStaff(staff: Staff) = viewModelScope.launch {
-        AppDatabase.getDatabase(getApplication()).staffDao().insert(staff)
-    }
-
+//    fun insertStaff(staff: Staff) = viewModelScope.launch {
+//        AppDatabase.getDatabase(getApplication()).staffDao().insert(staff)
+//    }
 
     private val _calculatedWeight = MutableLiveData<Double>()
     val calculatedWeight: LiveData<Double> = _calculatedWeight

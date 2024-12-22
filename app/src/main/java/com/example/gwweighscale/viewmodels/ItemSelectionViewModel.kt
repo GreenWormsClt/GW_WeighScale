@@ -123,7 +123,9 @@ class ItemSelectionViewModel(application: Application) : AndroidViewModel(applic
         repository.insert(item)
     }
 
-    fun deleteItem(item: Item) = viewModelScope.launch {
-        repository.delete(item)
-    }}
-
+    fun deleteItem(item: Item) {
+        viewModelScope.launch {
+            repository.delete(item)
+        }
+    }
+}
