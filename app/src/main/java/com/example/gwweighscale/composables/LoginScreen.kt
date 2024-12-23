@@ -38,7 +38,12 @@ import com.example.gwweighscale.widgets.CustomTextField
 
 
 @Composable
-fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> Unit) {
+fun LoginScreen(
+    viewModel: LoginViewModel = viewModel(),
+                onLoginSuccess: () -> Unit,
+                onAddCredential: () -> Unit,
+                onShowCredentials: () -> Unit
+) {
 
     val scrollState = rememberScrollState()
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -181,6 +186,46 @@ fun LoginScreen(viewModel: LoginViewModel = viewModel(), onLoginSuccess: () -> U
                             color = colorResource(id = R.color.white) // Explicitly set text color to white
                         )
                     }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        // Add User Button (Left Side)
+                        TextButton(
+                            onClick = { onAddCredential() },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(end = 8.dp) // Add spacing between buttons
+                        ) {
+                            Text(
+                                text = "Add User",
+                                fontFamily = InriaSerif,
+                                fontWeight = FontWeight.Bold,
+                                color = colorResource(id = R.color.GWGreen)
+                            )
+                        }
+
+                        // Show Users Button (Right Side)
+                        TextButton(
+                            onClick = { onShowCredentials() },
+                            modifier = Modifier
+                                .weight(1f)
+                                .padding(start = 8.dp) // Add spacing between buttons
+                        ) {
+                            Text(
+                                text = "Show Users",
+                                fontFamily = InriaSerif,
+                                fontWeight = FontWeight.Bold,
+                                color = colorResource(id = R.color.GWGreen)
+                            )
+                        }
+                    }
+
                 }
             }
         }

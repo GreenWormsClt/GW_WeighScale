@@ -16,8 +16,9 @@ object DataInitializer {
 
             val defaultWeighScales = listOf(
                 WeighScale(1, 1, 1, "GWASSET001"),
-                WeighScale(2, 2, 2, "GWASSET002"),
-                WeighScale(3, 3, 3, "GWASSET003"),
+                WeighScale(2, 2, 1, "GWASSET002"),
+                WeighScale(3, 3, 1, "GWASSET003"),
+                WeighScale(4, 3, 1, "GWASSET004"),
             )
             database.weighScaleDao().insertWeighScales(defaultWeighScales)
 

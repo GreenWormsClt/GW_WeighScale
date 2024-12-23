@@ -30,6 +30,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateListOf
@@ -52,6 +53,7 @@ import com.example.gwweighscale.R
 //import com.example.gwweighscale.Rooms.Entities.ItemReport
 import com.example.gwweighscale.fontfamily.InriaSerif
 import com.example.gwweighscale.rooms.entities.Item
+import com.example.gwweighscale.rooms.entities.WeighScale
 import com.example.gwweighscale.utils.generateColorFromString
 import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.ItemSelectionViewModel
@@ -76,6 +78,7 @@ fun ItemSelectionScreen(
     trolleyWeight: String,
     netWeight: String,
     staffId: Int,
+    machineCode: String
 ) {
     val context = LocalContext.current
     val items by viewModel.allItems.observeAsState(emptyList())
@@ -111,6 +114,22 @@ fun ItemSelectionScreen(
     var showDialog by remember { mutableStateOf(false) }
     var showItemPopup by remember { mutableStateOf(false) }
     var selectedItem by remember { mutableStateOf("") }
+    var weighScale by remember { mutableStateOf<WeighScale?>(null) }
+    var loading by remember { mutableStateOf(true) }
+
+    // Fetch weigh scale asynchronously
+    LaunchedEffect(machineCode) {
+        Log.d("DEBUG", "Fetching WeighScale with code: $machineCode")
+        weighviemodel.fetchWeighScaleByCode(machineCode) { result ->
+            weighScale = result
+            loading = false
+            if (result == null) {
+                Log.e("DEBUG", "WeighScale not found for code: $machineCode")
+            } else {
+                Log.d("DEBUG", "WeighScale found: $result")
+            }
+        }
+    }
 
     Scaffold(
         topBar = {
@@ -246,30 +265,32 @@ fun ItemSelectionScreen(
         ConfirmationDialog(
             selectedItem = selectedItem,
             onConfirm = {
-                viewModel.insertReport(
-                    mrfId = 1,
-                    plantId = 1,
-                    machineId = 1,
-                    weight = selectedWeight,
-                    userId = staffId,
-                    itemId = selectedItemId,
-                    date = currentDate,
-                    time = currentTime,
-                    onDuplicate = {
-                        showCountdownDialog = true
-                    },
-                    onSuccess = {
-                        Toast.makeText(
-                            context,
-                            "Item $selectedItem added successfully!",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                        // Save the trolley and selected item data to savedStateHandle
+                if (weighScale != null) {
+                    viewModel.insertReport(
+                        mrfId = weighScale!!.mrfId,
+                        plantId = weighScale!!.plantId,
+                        machineId = weighScale!!.machineId,
+                        weight = selectedWeight,
+                        userId = staffId,
+                        itemId = selectedItemId,
+                        date = currentDate,
+                        time = currentTime,
+                        onDuplicate = {
+                            showCountdownDialog = true
+                        },
+                        onSuccess = {
+                            Toast.makeText(
+                                context,
+                                "Item $selectedItem added successfully!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                            // Save the trolley and selected item data to savedStateHandle
 
-                        // Navigate back to the WeighScaleScreen
-                        onNavigateToWeighScale()
-                    }
-                )
+                            // Navigate back to the WeighScaleScreen
+                            onNavigateToWeighScale()
+                        }
+                    )
+                }
                 showDialog = false
             },
             onDismiss = { showDialog = false }

@@ -16,6 +16,9 @@ class WeighScaleRepository(private val weighScaleDao: WeighScaleDao) {
     suspend fun insertWeighScales(weighScales: List<WeighScale>) {
         weighScaleDao.insertWeighScales(weighScales)
     }
+    fun getWeighScaleByCode(machineCode: String): WeighScale? {
+        return weighScaleDao.getWeighScaleByCode(machineCode)
+    }
 
     suspend fun deleteWeighScale(weighScale: WeighScale) {
         weighScaleDao.deleteWeighScale(weighScale)

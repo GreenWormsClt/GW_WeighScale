@@ -16,7 +16,9 @@ import com.example.gwweighscale.rooms.database.AppDatabase
 import com.example.gwweighscale.rooms.entities.Staff
 import com.example.gwweighscale.rooms.entities.Tare
 import com.example.gwweighscale.rooms.entities.WeighScale
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 class WeighScaleViewModel(application: Application) : AndroidViewModel(application) {
     private val weighScaleRepository: WeighScaleRepository
@@ -29,7 +31,18 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
         weighScaleRepository = WeighScaleRepository(weighScaleDao)
         allWeighScales = weighScaleRepository.allWeighScales
     }
+    var weighScale: WeighScale? = null
+        private set
 
+    fun fetchWeighScaleByCode(machineCode: String, onResult: (WeighScale?) -> Unit) {
+        viewModelScope.launch {
+            val result = withContext(Dispatchers.IO) {
+                weighScaleRepository.getWeighScaleByCode(machineCode)
+            }
+            weighScale = result
+            onResult(result)
+        }
+    }
 
     fun insertWeighScale(weighScale: WeighScale) = viewModelScope.launch {
         weighScaleRepository.insertWeighScale(weighScale)
@@ -38,9 +51,13 @@ class WeighScaleViewModel(application: Application) : AndroidViewModel(applicati
     fun deleteWeighScale(weighScale: WeighScale) = viewModelScope.launch {
         weighScaleRepository.deleteWeighScale(weighScale)
     }
-    fun getWeighScaleByCode(machineCode: String): WeighScale? {
-        return allWeighScales.value?.find { it.machineCode == machineCode }
-    }
+//    fun getWeighScaleByCode(machineCode: String): WeighScale? {
+//        return allWeighScales.value?.find { it.machineCode == machineCode }
+//    }
+fun getWeighScaleByCode(machineCode: String): WeighScale? {
+    return weighScaleRepository.getWeighScaleByCode(machineCode)
+}
+
 
     // Store selected trolley
     private val _selectedTrolley = MutableLiveData<Tare?>()

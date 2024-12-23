@@ -6,24 +6,28 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.migration.Migration
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.example.gwweighscale.models.PopupData
+import com.example.gwweighscale.rooms.dao.CredentialDao
 import com.example.gwweighscale.rooms.dao.ItemDao
 import com.example.gwweighscale.rooms.dao.ItemReportDao
 import com.example.gwweighscale.rooms.dao.StaffDao
 import com.example.gwweighscale.rooms.dao.TareDao
 import com.example.gwweighscale.rooms.dao.WeighScaleDao
+import com.example.gwweighscale.rooms.entities.Credential
 import com.example.gwweighscale.rooms.entities.Item
 import com.example.gwweighscale.rooms.entities.ItemReport
 import com.example.gwweighscale.rooms.entities.Staff
 import com.example.gwweighscale.rooms.entities.Tare
 import com.example.gwweighscale.rooms.entities.WeighScale
 
-@Database(entities = [Item::class, Staff::class, Tare::class, WeighScale::class, ItemReport::class], version = 6, exportSchema = false)
+@Database(entities = [Item::class, Staff::class, Tare::class, WeighScale::class, ItemReport::class, Credential::class], version = 6, exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun itemDao(): ItemDao
     abstract fun staffDao(): StaffDao
     abstract fun tareDao(): TareDao
     abstract fun weighScaleDao(): WeighScaleDao
     abstract fun itemReportDao(): ItemReportDao
+    abstract fun credentialDao(): CredentialDao
 
     companion object {
         @Volatile

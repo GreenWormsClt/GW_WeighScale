@@ -1,5 +1,6 @@
 package com.example.gwweighscale
 
+
 import android.content.pm.ActivityInfo
 import android.os.Build
 import android.os.Bundle
@@ -34,8 +35,10 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gwweighscale.composables.AddCredentialScreen
 import com.example.gwweighscale.composables.ItemListScreen
 import com.example.gwweighscale.composables.ReportScreen
+import com.example.gwweighscale.composables.ShowCredentialsScreen
 import com.example.gwweighscale.composables.StaffListScreen
 
 
@@ -117,8 +120,23 @@ fun WeighScaleApp(
                 viewModel = loginViewModel,
                 onLoginSuccess = {
                     navController.navigate("home")
-                })
+                },
+                onAddCredential = { navController.navigate("addCredential") },
+                onShowCredentials = { navController.navigate("showCredentials") }
+                )
+
+
         }
+        composable("addCredential") {
+            AddCredentialScreen(viewModel = loginViewModel, navController = navController)
+        }
+        composable("showCredentials") {
+            ShowCredentialsScreen(
+                viewModel = loginViewModel, // Correctly passing LoginViewModel instance
+                onBack = { navController.popBackStack() }
+            )
+        }
+
         composable("home") {
             WeighScaleScreen(
                 machineCode = machineCode,
@@ -173,6 +191,7 @@ fun WeighScaleApp(
                 trolleyWeight = trolleyWeight,
                 netWeight = netWeight,
                 staffId = staffId,
+                machineCode = machineCode
 
             )
         }
@@ -221,3 +240,5 @@ fun WeighScaleApp(
 
     }
 }
+
+

@@ -15,7 +15,12 @@ interface WeighScaleDao {
     @Query("SELECT * FROM weigh_scale")
     fun getAllWeighScales(): LiveData<List<WeighScale>>
 
+    @Query("SELECT * FROM weigh_scale WHERE machineCode = :machineCode LIMIT 1")
+    fun getWeighScaleByCode(machineCode: String): WeighScale?
+
     @Delete
     suspend fun deleteWeighScale(weighScale: WeighScale)
 }
+
+
 
