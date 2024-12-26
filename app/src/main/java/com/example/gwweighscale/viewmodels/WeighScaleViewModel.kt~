@@ -191,5 +191,4 @@ fun getWeighScaleByCode(machineCode: String): WeighScale? {
 
 
 
-
 }

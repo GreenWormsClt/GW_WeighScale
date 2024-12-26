@@ -60,6 +60,7 @@ interface ItemReportDao {
 
     @Query("SELECT * FROM item_reports")
     suspend fun getAllReportsSync(): List<ItemReport>
-
+    @Query("DELETE FROM item_reports")
+    suspend fun resetReports()
 }
 

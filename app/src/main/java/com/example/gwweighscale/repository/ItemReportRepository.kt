@@ -16,6 +16,8 @@ class ItemReportRepository(private val itemReportDao: ItemReportDao) {
     fun getReportDetails(): LiveData<List<PopupData>> {
         return itemReportDao.getReportDetails()
     }
+
+
     suspend fun isDuplicateReport(
         itemId: Int,
         userId: Int,
@@ -30,6 +32,10 @@ class ItemReportRepository(private val itemReportDao: ItemReportDao) {
     }
     suspend fun getAllReportsSync(): List<ItemReport> {
         return itemReportDao.getAllReportsSync() // Create this DAO method
+    }
+
+    suspend fun resetReports() {
+        itemReportDao.resetReports()
     }
 }
 

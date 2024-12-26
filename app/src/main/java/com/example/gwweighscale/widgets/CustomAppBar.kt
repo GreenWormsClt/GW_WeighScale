@@ -41,7 +41,6 @@ fun CustomAppBar(
     title: String,
     iconRes: Int,
     onLogoutClick: () -> Unit,
-    onExitClick: () -> Unit,
     onNavigateToStaffList: () -> Unit,
     onNavigateToLogin: () -> Unit, // Add a navigation callback for login
     fontFamily: FontFamily = InriaSerif,
@@ -145,21 +144,6 @@ fun CustomAppBar(
                         showLogoutDialog = true // Show the logout confirmation dialog
                     }
                 )
-                DropdownMenuItem(
-                    text = {
-                        Text(
-                            text = "Exit",
-                            fontFamily = fontFamily,
-                            fontWeight = FontWeight.Normal,
-                            fontSize = 16.sp
-                        )
-                    },
-                    onClick = {
-                        expanded = false
-                        onExitClick()
-                    }
-                )
-
             }
         },
         colors = TopAppBarDefaults.centerAlignedTopAppBarColors(

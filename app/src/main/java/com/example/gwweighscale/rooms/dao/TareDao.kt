@@ -24,4 +24,6 @@ interface TareDao {
     @Delete
     suspend fun deleteTare(tare: Tare) // Delete a specific trolley
 
+    @Query("SELECT * FROM tares WHERE tareId = :tareId LIMIT 1")
+    suspend fun getTareById(tareId: Int): Tare?
 }

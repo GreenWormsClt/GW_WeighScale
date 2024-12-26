@@ -46,7 +46,6 @@ fun LoginScreen(
 ) {
 
     val scrollState = rememberScrollState()
-    val keyboardController = LocalSoftwareKeyboardController.current
 
     val focusManager = LocalFocusManager.current
     val focusRequester = remember { FocusRequester() }
@@ -54,7 +53,7 @@ fun LoginScreen(
     // Automatically focus on the first text field and show the keyboard
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
-        keyboardController?.show()
+
     }
 
     Surface(

@@ -17,9 +17,7 @@ class TareRepository(private val tareDao: TareDao) {
     suspend fun getMaxTareId(): Int? {
         return tareDao.getMaxTareId()
     }
-    suspend fun getTareById(tareId: Int): Tare? {
-        return tareDao.getTareById(tareId)
-    }
+
     suspend fun deleteTare(tare: Tare) {
         tareDao.deleteTare(tare)
     }

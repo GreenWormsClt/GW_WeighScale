@@ -1,14 +1,14 @@
 package com.example.gwweighscale.composables
 
 import android.content.Context
-import android.widget.Button
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.AlertDialog
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.compose.material.Icon
@@ -17,24 +17,33 @@ import androidx.compose.material.Surface
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import androidx.compose.foundation.gestures.detectTapGestures
 import com.example.gwweighscale.fontfamily.InriaSerif
 import com.example.gwweighscale.models.PopupData
 import androidx.compose.material3.Button
+import kotlinx.coroutines.launch
 
 @Composable
 fun PopupScreen(
     reportDetails: List<PopupData>,
     onDismiss: () -> Unit,
+    onResetReports: () -> Unit,
     exportToExcel: (Context) -> Unit,
     context: Context
 ) {
+    var showFirstAlert by remember { mutableStateOf(false) }
+    var showSecondAlert by remember { mutableStateOf(false) }
+    var showDeleteIcon by remember { mutableStateOf(false) } // Toggle Delete Icon on Long Press
+
     Dialog(
         onDismissRequest = onDismiss,
         properties = DialogProperties(usePlatformDefaultWidth = false)
@@ -59,9 +68,17 @@ fun PopupScreen(
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
 
-                    // Title Row
+                    // Title Row with Long-Press Logic
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        showDeleteIcon = true
+                                    }
+                                )
+                            },
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
@@ -73,6 +90,31 @@ fun PopupScreen(
                             color = Color(0xFF026163),
                             textAlign = TextAlign.Start
                         )
+
+                        if (showDeleteIcon) {
+                            IconButton(
+                                onClick = {
+                                    if (reportDetails.isEmpty()) {
+                                        Toast.makeText(context, "There is no data to reset.", Toast.LENGTH_SHORT).show()
+                                    } else {
+                                        showFirstAlert = true
+                                    }
+                                },
+                                modifier = Modifier
+                                    .size(48.dp)
+                                    .background(
+                                        color = Color.Red.copy(alpha = 0.1f),
+                                        shape = RoundedCornerShape(24.dp)
+                                    )
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Delete,
+                                    contentDescription = "Delete",
+                                    tint = Color.Red
+                                )
+                            }
+                        }
+
                         Button(
                             onClick = { exportToExcel(context) },
                             modifier = Modifier.padding(8.dp)
@@ -216,5 +258,48 @@ fun PopupScreen(
                 }
             }
         }
+    }
+
+    // First Confirmation Dialog
+    if (showFirstAlert) {
+        AlertDialog(
+            onDismissRequest = { showFirstAlert = false },
+            title = { Text("Confirm Reset") },
+            text = { Text("Are you sure you want to reset the reports?") },
+            confirmButton = {
+                Button(onClick = {
+                    showFirstAlert = false
+                    showSecondAlert = true
+                }) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showFirstAlert = false }) {
+                    Text("No")
+                }
+            }
+        )
+    }
+
+    if (showSecondAlert) {
+        AlertDialog(
+            onDismissRequest = { showSecondAlert = false },
+            title = { Text("Final Confirmation") },
+            text = { Text("This action cannot be undone. Proceed?") },
+            confirmButton = {
+                Button(onClick = {
+                    showSecondAlert = false
+                    onResetReports()
+                }) {
+                    Text("Confirm")
+                }
+            },
+            dismissButton = {
+                Button(onClick = { showSecondAlert = false }) {
+                    Text("Cancel")
+                }
+            }
+        )
     }
 }

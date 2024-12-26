@@ -39,22 +39,25 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.zIndex
 import androidx.navigation.NavController
-import com.example.gwweighscale.rooms.entities.Tare
 import com.example.gwweighscale.utils.ExcelExporter
 import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.TareViewModel
@@ -78,13 +81,16 @@ fun WeighScaleScreen(
     val screenWidth = configuration.screenWidthDp.dp
     val isTablet = screenWidth > 600.dp
     val scrollState = rememberScrollState()
-    val isTrolleyPopupVisible by tareViewModel.isTrolleyPopupVisible
+   // val isTrolleyPopupVisible by tareViewModel.isTrolleyPopupVisible
     var calculatedWeight by remember { mutableStateOf<Double?>(null) }
-    val trolleyList by tareViewModel.allTares.observeAsState(emptyList())
+   // val trolleyList by tareViewModel.allTares.observeAsState(emptyList())
     val weighScales = viewModel.allWeighScales.observeAsState(emptyList())
     val netWeight by bluetoothViewModel.netweight // Observe netWeight from BluetoothViewModel
     var selectedNetWeight by remember { mutableStateOf("") }
+    val trolleyList by tareViewModel.allTares.observeAsState(emptyList())
+    val selectedTrolley by tareViewModel.selectedTrolley
 
+    var isTrolleyPopupVisible by remember { mutableStateOf(false) }
     // Accessing the ViewModel states
     val isPopupVisible by viewModel.isPopupVisible
     val popupData by viewModel.popupData
@@ -105,20 +111,20 @@ fun WeighScaleScreen(
     val time by bluetoothViewModel.time
     val context = LocalContext.current
     val date by bluetoothViewModel.date
-    var selectedTrolley by remember { mutableStateOf<Tare?>(null) }
+    //var selectedTrolley by remember { mutableStateOf<Tare?>(null) }
+    var isRfidFieldFocused by remember { mutableStateOf(false) }
+
+    val focusManager = LocalFocusManager.current
     val keyboardController = LocalSoftwareKeyboardController.current
-    val savedStateHandle = navController.currentBackStackEntry?.savedStateHandle
 
-    // Retrieve updated trolley and item data if available
-    val updatedTrolleyData = savedStateHandle?.get<Pair<String, String>>("trolleyData")
-    val (updatedTrolleyName, updatedTrolleyWeight) = updatedTrolleyData ?: Pair("", "")
+    val coroutineScope = rememberCoroutineScope()
 
-    val updatedItemData = savedStateHandle?.get<String>("selectedItem")
 
     LaunchedEffect(Unit) {
-        keyboardController?.hide()
+
         bluetoothViewModel.connect()
-        focusRequester.requestFocus() // Request focus programmatically
+        focusRequester.requestFocus()
+        keyboardController?.hide()// Request focus programmatically
 
     }
 
@@ -145,7 +151,6 @@ fun WeighScaleScreen(
                 onLogoutClick = {
                     onNavigateToLogin() // Navigate to the Login screen
                 },
-                onExitClick = { /* Handle Exit action */ },
                 onAddStaff = { staff ->
                     viewModel.insertStaff(staff)
                 },
@@ -181,14 +186,11 @@ fun WeighScaleScreen(
                     )
 
                 }
-
-                // Right side: TROLLEY NAME and TROLLEY WEIGHT
                 selectedTrolley?.let { trolley ->
                     Column(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         horizontalAlignment = Alignment.End
                     ) {
-
                         Text(
                             text = "TrolleyName: ${trolley.name}",
                             fontSize = if (isTablet) 20.sp else 20.sp,
@@ -203,111 +205,64 @@ fun WeighScaleScreen(
                         )
                     }
                 }
-//                val updatedTrolleyData = navController.currentBackStackEntry?.savedStateHandle?.get<Pair<String, String>>("trolleyData")
-//                val updatedTrolleyName = updatedTrolleyData?.first
-//                val updatedTrolleyWeight = updatedTrolleyData?.second
-
-                if (!updatedTrolleyName.isNullOrEmpty() && !updatedTrolleyWeight.isNullOrEmpty()) {
-                    Column(
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        horizontalAlignment = Alignment.End
-                    ) {
-                        Text(
-                            text = "Trolley Name: $updatedTrolleyName",
-                            fontSize = if (isTablet) 20.sp else 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = InriaSerif
-                        )
-                        Text(
-                            text = "Trolley Weight: $updatedTrolleyWeight",
-                            fontSize = if (isTablet) 20.sp else 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            fontFamily = InriaSerif
-                        )
-                    }
-                }
-
             }
-
-
-            fun onRFIDTapped(input: String) {
-                Log.d("RFID_Debug", "RFID Input: $input")
-                rfidTag = input
-                val expectedLength = 10
-                if (input.length == expectedLength) {
-                    staffId = viewModel.validateRfidAndFetchStaffId(input).toString()
-                    matchedStaffName = viewModel.validateRfidAndFetchStaffName(input)
-                    if (matchedStaffName != null) {
-                        if (selectedTrolley != null) {
-                            selectedNetWeight = netWeight
-                            onNavigateToItemSelection(
-                                matchedStaffName!!,
-                                selectedTrolley!!.name,
-                                selectedTrolley!!.weight.toString(),
-                                selectedNetWeight,
-                                staffId!!,
-                            )
-                        } else {
-                            Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT)
-                                .show()
-                        }
-                    } else {
-                        Toast.makeText(context, "RFID not found!", Toast.LENGTH_SHORT).show()
-                    }
-                    rfidTag = ""
-                }
-            }
-//            fun onRFIDTapped(input: String) {
-//                rfidTag = input
-//                staffId = viewModel.validateRfidAndFetchStaffId(input).toString()
-//                matchedStaffName = viewModel.validateRfidAndFetchStaffName(input)
-//                if (matchedStaffName != null) {
-//                    if (selectedTrolley != null) {
-//                        selectedNetWeight = netWeight
-//                        onNavigateToItemSelection(
-//                            matchedStaffName!!,
-//                            selectedTrolley!!.name,
-//                            selectedTrolley!!.weight.toString(),
-//                            selectedNetWeight,
-//                            staffId!!,
-//                        )
-//                    } else {
-//                        Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT).show()
-//                    }
-//                } else {
-//                    Toast.makeText(context, "RFID not found!", Toast.LENGTH_SHORT).show()
-//                }
-//            }
 
             Spacer(modifier = Modifier.weight(1f))
 
 
-            // Removed the Image and its surrounding Column
-//            Column(modifier = Modifier.fillMaxSize()) {
-            //     var matchedStaffName by remember { mutableStateOf<String?>(null) }
-
+            // RFID Input Field
             BasicTextField(
                 value = rfidTag,
                 onValueChange = { input ->
-                    onRFIDTapped(input)
+                    rfidTag = input
+                    if (input.length == 10) {
+                        Log.d("RFID_Debug", "RFID Input: $input")
+                        val staffId = viewModel.validateRfidAndFetchStaffId(input)
+                        val matchedStaffName = viewModel.validateRfidAndFetchStaffName(input)
+
+                        if (matchedStaffName != null) {
+                            if (selectedTrolley != null) {
+                                onNavigateToItemSelection(
+                                    matchedStaffName,
+                                    selectedTrolley!!.name,
+                                    selectedTrolley!!.weight.toString(),
+                                    netWeight,
+                                    staffId.toString()
+                                )
+                            } else {
+                                Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT).show()
+                            }
+                        } else {
+                            Toast.makeText(context, "RFID not found!", Toast.LENGTH_SHORT).show()
+                        }
+                        rfidTag = ""
+                    }
                 },
                 modifier = Modifier
-                    .focusRequester(focusRequester) // Attach the focus requester
-                    .alpha(0f) // Make the TextField invisible
-                    .height(0.dp) // Reduce the height to 0
-                    .focusable(true), // Disable the keyboard trigger
-                keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Done),
+                    .focusRequester(focusRequester)
+                    .onFocusChanged { focusState ->
+                        if (focusState.isFocused) {
+                            keyboardController?.hide()
+                        }
+                    }
+                    .alpha(1f) // Keep it visible
+                    .height(20.dp) // Minimal height for visibility
+                    .focusable(true),
+                keyboardOptions = KeyboardOptions.Default.copy(
+                    imeAction = ImeAction.Done
+
+                ),
                 keyboardActions = KeyboardActions(
                     onDone = {
-                        keyboardController?.hide() // Hide the keyboard after "Done"
+                        keyboardController?.hide()
+                        focusManager.clearFocus()
                     }
                 ),
                 singleLine = true,
                 decorationBox = {}
-
             )
-            //    Spacer(modifier = Modifier.height(16.dp))
-            //  }
+
+
             Spacer(modifier = Modifier.weight(1f))
 
             Row(
@@ -340,7 +295,7 @@ fun WeighScaleScreen(
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(if (isTablet) 32.dp else 16.dp)  // Adjust spacing between buttons
                 ) {
-                    CircleButton("Trolley", onClick = { tareViewModel.onTareClick() }, isTablet)
+                    CircleButton("Trolley", onClick = {  isTrolleyPopupVisible = true }, isTablet)
                     CircleButton("History", onClick = { viewModel.onViewClick() }, isTablet)
                     CircleButton(
                         "Report",
@@ -384,7 +339,8 @@ fun WeighScaleScreen(
                         reportData = reportDetails // Use the observed reportDetails here
                     )
                 },
-                context = context
+                context = context,
+                onResetReports = {  }
             )
         }
         if (isReportVisible) {
@@ -396,20 +352,19 @@ fun WeighScaleScreen(
         if (isTrolleyPopupVisible) {
             TrolleyListPopup(
                 trolleyList = trolleyList,
-                onDismiss = { tareViewModel.onTrolleyPopupClose() },
+                onDismiss = {   isTrolleyPopupVisible = false   },
                 onTrolleyDeleted = { trolley ->
                     tareViewModel.deleteTare(trolley)
                 },
                 onTrolleySelected = { selectedTrolleyItem ->
-                    selectedTrolley = selectedTrolleyItem // Update selected trolley
+                    tareViewModel.selectTrolley(selectedTrolleyItem)
+                    isTrolleyPopupVisible = false
                 },
                 modifier = Modifier
                     .align(Alignment.BottomEnd)
                     .padding(end = 16.dp, bottom = 32.dp)
             )
         }
-
-
     }
 }
 
@@ -432,5 +387,3 @@ fun CircleButton(text: String, onClick: () -> Unit, isTablet: Boolean) {
         )
     }
 }
-
-
