@@ -36,7 +36,7 @@ import kotlinx.coroutines.launch
 fun PopupScreen(
     reportDetails: List<PopupData>,
     onDismiss: () -> Unit,
-    onResetReports: () -> Unit,
+    resetItemReports: () -> Unit,
     exportToExcel: (Context) -> Unit,
     context: Context
 ) {
@@ -290,7 +290,7 @@ fun PopupScreen(
             confirmButton = {
                 Button(onClick = {
                     showSecondAlert = false
-                    onResetReports()
+                    resetItemReports()
                 }) {
                     Text("Confirm")
                 }

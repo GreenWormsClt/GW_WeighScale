@@ -145,12 +145,6 @@ fun getWeighScaleByCode(machineCode: String): WeighScale? {
      reportDetails = itemReportRepository.getReportDetails()
     }
 
-    fun resetItemReports(onComplete: () -> Unit) {
-        viewModelScope.launch {
-            itemReportRepository.resetReports()
-            onComplete()
-        }
-    }
     suspend fun isDuplicateReport(
         itemId: Int,
         userId: Int,
@@ -189,7 +183,12 @@ fun getWeighScaleByCode(machineCode: String): WeighScale? {
         }
     }
 
-
+    fun resetItemReports(onComplete: () -> Unit) {
+        viewModelScope.launch {
+            itemReportRepository.resetReports()
+            onComplete()
+        }
+    }
 
 
 }

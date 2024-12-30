@@ -122,10 +122,9 @@ fun WeighScaleScreen(
 
     LaunchedEffect(Unit) {
 
-        bluetoothViewModel.connect()
         focusRequester.requestFocus()
-        keyboardController?.hide()// Request focus programmatically
-
+        keyboardController?.hide()
+        bluetoothViewModel.connect()
     }
 
     Box(
@@ -216,7 +215,7 @@ fun WeighScaleScreen(
                 onValueChange = { input ->
                     rfidTag = input
                     if (input.length == 10) {
-                        Log.d("RFID_Debug", "RFID Input: $input")
+                        // Handle RFID input and navigate
                         val staffId = viewModel.validateRfidAndFetchStaffId(input)
                         val matchedStaffName = viewModel.validateRfidAndFetchStaffName(input)
 
@@ -239,24 +238,18 @@ fun WeighScaleScreen(
                     }
                 },
                 modifier = Modifier
-                    .focusRequester(focusRequester)
+                    .focusRequester(focusRequester) // Ensure focus
                     .onFocusChanged { focusState ->
                         if (focusState.isFocused) {
-                            keyboardController?.hide()
+                            keyboardController?.hide() // Suppress keyboard
                         }
                     }
-                    .alpha(1f) // Keep it visible
-                    .height(20.dp) // Minimal height for visibility
-                    .focusable(true),
+                    .focusable(true), // Ensure interactivity
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
-
                 ),
                 keyboardActions = KeyboardActions(
-                    onDone = {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                    }
+                    onDone = { keyboardController?.hide() }
                 ),
                 singleLine = true,
                 decorationBox = {}
@@ -340,7 +333,7 @@ fun WeighScaleScreen(
                     )
                 },
                 context = context,
-                onResetReports = {  }
+                resetItemReports = { viewModel.resetItemReports {} }
             )
         }
         if (isReportVisible) {
