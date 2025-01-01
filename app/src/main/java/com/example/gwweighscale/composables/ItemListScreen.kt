@@ -3,26 +3,20 @@ package com.example.gwweighscale.composables
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
 import androidx.compose.material.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.TextStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -36,6 +30,10 @@ fun ItemListScreen(
 ) {
     val context = LocalContext.current
     val items by viewModel.allItems.observeAsState(emptyList()) // Observing live data for items
+    var verificationCode by remember { mutableStateOf("") }
+    val correctCode = "GW@2025"
+    var showDialog by remember { mutableStateOf(false) }
+    var selectedItem by remember { mutableStateOf<Item?>(null) }
 
     Scaffold(
         topBar = {
@@ -71,18 +69,91 @@ fun ItemListScreen(
                     ItemCard(
                         item = item,
                         onDelete = {
-                            viewModel.deleteItem(it) // Deletes the item from the database
-                            Toast.makeText(
-                                context,
-                                "${it.itemName} deleted!",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            selectedItem = item
+                            showDialog = true
                         }
                     )
                 }
             }
         }
     )
+
+    // Confirmation AlertDialog
+    if (showDialog && selectedItem != null) {
+        AlertDialog(
+            onDismissRequest = { showDialog = false }, // Close dialog on dismiss
+            title = {
+                Text(text = "Confirm Delete", fontWeight = FontWeight.Bold)
+            },
+            text = {
+
+                BasicTextField(
+                    value = verificationCode,
+                    onValueChange = { verificationCode = it },
+                    decorationBox = { innerTextField ->
+                        Box(
+                            modifier = Modifier
+                                .background(Color.White, RoundedCornerShape(4.dp))
+                                .padding(8.dp)
+                        ) {
+                            if (verificationCode.isEmpty()) {
+                                Text(
+                                    text = "Enter Verification Code",
+                                    color = Color.Black
+                                )
+                            }
+                            innerTextField()
+                        }
+                    },
+                    singleLine = true
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        if (verificationCode == correctCode) {
+                            selectedItem?.let {
+                                viewModel.deleteItem(it)
+                                Toast.makeText(
+                                    context,
+                                    "${it.itemName} deleted!",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                            showDialog = false
+                            verificationCode = ""
+                        } else {
+                            Toast.makeText(
+                                context,
+                                "Incorrect verification code!",
+                                Toast.LENGTH_SHORT
+                            ).show()
+                        }
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Red,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Yes")
+                }
+            },
+            dismissButton = {
+                Button(
+                    onClick = {
+                        showDialog = false
+                        verificationCode = ""
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        backgroundColor = Color.Gray,
+                        contentColor = Color.White
+                    )
+                ) {
+                    Text("Cancel")
+                }
+            }
+        )
+    }
 }
 
 @Composable
@@ -112,14 +183,13 @@ fun ItemCard(
             )
             Button(
                 onClick = { onDelete(item) },
-
                 colors = ButtonDefaults.buttonColors(
                     backgroundColor = Color(0xFFFF6F61), // Soft red for delete button
                     contentColor = Color.White
                 )
-                ) {
-                    Text("Delete")
-                }
+            ) {
+                Text("Delete")
+            }
         }
     }
 }

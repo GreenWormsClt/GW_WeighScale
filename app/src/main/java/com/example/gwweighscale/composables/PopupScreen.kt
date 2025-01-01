@@ -31,6 +31,9 @@ import com.example.gwweighscale.fontfamily.InriaSerif
 import com.example.gwweighscale.models.PopupData
 import androidx.compose.material3.Button
 import kotlinx.coroutines.launch
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.TextField
+import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun PopupScreen(
@@ -43,6 +46,8 @@ fun PopupScreen(
     var showFirstAlert by remember { mutableStateOf(false) }
     var showSecondAlert by remember { mutableStateOf(false) }
     var showDeleteIcon by remember { mutableStateOf(false) } // Toggle Delete Icon on Long Press
+    var verificationCode by remember { mutableStateOf("") }
+    val correctVerificationCode = "GW@2025" // Set your verification code here
 
     Dialog(
         onDismissRequest = onDismiss,
@@ -265,13 +270,26 @@ fun PopupScreen(
         AlertDialog(
             onDismissRequest = { showFirstAlert = false },
             title = { Text("Confirm Reset") },
-            text = { Text("Are you sure you want to reset the reports?") },
+            text = {
+                Column {
+                    Text("Please enter the verification code to proceed:")
+                    TextField(
+                        value = verificationCode,
+                        onValueChange = { verificationCode = it },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
+            },
             confirmButton = {
                 Button(onClick = {
-                    showFirstAlert = false
-                    showSecondAlert = true
+                    if (verificationCode == correctVerificationCode) {
+                        showFirstAlert = false
+                        showSecondAlert = true
+                    } else {
+                        Toast.makeText(context, "Invalid verification code", Toast.LENGTH_SHORT).show()
+                    }
                 }) {
-                    Text("Yes")
+                    Text("Submit")
                 }
             },
             dismissButton = {
@@ -281,7 +299,7 @@ fun PopupScreen(
             }
         )
     }
-
+    // Second Confirmation Dialog
     if (showSecondAlert) {
         AlertDialog(
             onDismissRequest = { showSecondAlert = false },
@@ -291,6 +309,7 @@ fun PopupScreen(
                 Button(onClick = {
                     showSecondAlert = false
                     resetItemReports()
+                    verificationCode = "" // Clear the verification code
                 }) {
                     Text("Confirm")
                 }

@@ -97,13 +97,7 @@ fun ShowCredentialsScreen(
         }
     )
 
-    // Dialog for Credential Details
-    if (isDialogVisible && selectedCredential != null) {
-        CredentialDetailDialog(
-            credential = selectedCredential!!,
-            onDismiss = { isDialogVisible = false }
-        )
-    }
+
 
     // Dialog for Delete Confirmation
     if (isDeleteConfirmationVisible && selectedCredential != null) {
@@ -161,41 +155,6 @@ fun CredentialCard(credential: Credential, onClick: () -> Unit, onDelete: () -> 
         }
     }
 }
-
-// 📋 Credential Detail Dialog
-@Composable
-fun CredentialDetailDialog(credential: Credential, onDismiss: () -> Unit) {
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = {
-            Text(
-                text = "Credential Details",
-                fontWeight = FontWeight.Bold,
-                fontSize = 20.sp
-            )
-        },
-        text = {
-            Column {
-                Text(
-                    text = "Machine Code: ${credential.machineCode}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-                Text(
-                    text = "Password: ${credential.password}",
-                    fontSize = 16.sp,
-                    fontWeight = FontWeight.Medium
-                )
-            }
-        },
-        confirmButton = {
-            Button(onClick = onDismiss) {
-                Text("Close")
-            }
-        }
-    )
-}
-
 
 @Composable
 fun ConfirmDeleteDialog(credential: Credential, onConfirm: () -> Unit, onDismiss: () -> Unit) {

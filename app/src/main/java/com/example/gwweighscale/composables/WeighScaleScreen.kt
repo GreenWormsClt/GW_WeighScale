@@ -61,6 +61,9 @@ import androidx.navigation.NavController
 import com.example.gwweighscale.utils.ExcelExporter
 import com.example.gwweighscale.viewmodels.BluetoothViewModel
 import com.example.gwweighscale.viewmodels.TareViewModel
+import android.view.WindowManager
+import android.app.Activity
+import kotlinx.coroutines.delay
 
 
 @SuppressLint("ResourceAsColor")
@@ -81,9 +84,9 @@ fun WeighScaleScreen(
     val screenWidth = configuration.screenWidthDp.dp
     val isTablet = screenWidth > 600.dp
     val scrollState = rememberScrollState()
-   // val isTrolleyPopupVisible by tareViewModel.isTrolleyPopupVisible
+    // val isTrolleyPopupVisible by tareViewModel.isTrolleyPopupVisible
     var calculatedWeight by remember { mutableStateOf<Double?>(null) }
-   // val trolleyList by tareViewModel.allTares.observeAsState(emptyList())
+    // val trolleyList by tareViewModel.allTares.observeAsState(emptyList())
     val weighScales = viewModel.allWeighScales.observeAsState(emptyList())
     val netWeight by bluetoothViewModel.netweight // Observe netWeight from BluetoothViewModel
     var selectedNetWeight by remember { mutableStateOf("") }
@@ -119,11 +122,28 @@ fun WeighScaleScreen(
 
     val coroutineScope = rememberCoroutineScope()
 
+    var suppressKeyboard by remember { mutableStateOf(true) }
+
+    // Add this DisposableEffect to hide the keyboard and manage focus
+    DisposableEffect(Unit) {
+        val activity = context as Activity
+        // Hide keyboard and prevent it from showing
+        activity.window.setSoftInputMode(
+            WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_HIDDEN or
+                    WindowManager.LayoutParams.SOFT_INPUT_ADJUST_NOTHING
+        )
+
+        onDispose {
+            // Reset the soft input mode when the composable is disposed
+            activity.window.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_UNSPECIFIED)
+        }
+    }
 
     LaunchedEffect(Unit) {
-
-        focusRequester.requestFocus()
+        // Ensure keyboard is hidden
         keyboardController?.hide()
+        // Request focus but don't show keyboard
+        focusRequester.requestFocus()
         bluetoothViewModel.connect()
     }
 
@@ -215,36 +235,36 @@ fun WeighScaleScreen(
                 onValueChange = { input ->
                     rfidTag = input
                     if (input.length == 10) {
-                        // Handle RFID input and navigate
+                        // Process RFID immediately
                         val staffId = viewModel.validateRfidAndFetchStaffId(input)
                         val matchedStaffName = viewModel.validateRfidAndFetchStaffName(input)
 
-                        if (matchedStaffName != null) {
-                            if (selectedTrolley != null) {
-                                onNavigateToItemSelection(
-                                    matchedStaffName,
-                                    selectedTrolley!!.name,
-                                    selectedTrolley!!.weight.toString(),
-                                    netWeight,
-                                    staffId.toString()
-                                )
-                            } else {
-                                Toast.makeText(context, "Please select a trolley!", Toast.LENGTH_SHORT).show()
-                            }
+                        if (matchedStaffName != null && selectedTrolley != null) {
+                            // Navigate immediately without any delay
+                            onNavigateToItemSelection(
+                                matchedStaffName,
+                                selectedTrolley!!.name,
+                                selectedTrolley!!.weight.toString(),
+                                netWeight,
+                                staffId.toString()
+                            )
+                            rfidTag = "" // Clear the input after navigation
                         } else {
-                            Toast.makeText(context, "RFID not found!", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "RFID not found or trolley not selected!", Toast.LENGTH_SHORT).show()
+                            rfidTag = "" // Clear the input on error
                         }
-                        rfidTag = ""
                     }
                 },
                 modifier = Modifier
-                    .focusRequester(focusRequester) // Ensure focus
+                    .size(0.dp)  // Make it invisible but functional
+                    .focusRequester(focusRequester)
                     .onFocusChanged { focusState ->
                         if (focusState.isFocused) {
-                            keyboardController?.hide() // Suppress keyboard
+                            // Immediately hide keyboard if it somehow appears
+                            keyboardController?.hide()
                         }
                     }
-                    .focusable(true), // Ensure interactivity
+                    .focusable(true), // Ensure it can receive focus
                 keyboardOptions = KeyboardOptions.Default.copy(
                     imeAction = ImeAction.Done
                 ),

@@ -202,7 +202,7 @@ fun LoginScreen(
                                 .padding(end = 8.dp) // Add spacing between buttons
                         ) {
                             Text(
-                                text = "Add User",
+                                text = "Add Machine",
                                 fontFamily = InriaSerif,
                                 fontWeight = FontWeight.Bold,
                                 color = colorResource(id = R.color.GWGreen)
@@ -217,7 +217,7 @@ fun LoginScreen(
                                 .padding(start = 8.dp) // Add spacing between buttons
                         ) {
                             Text(
-                                text = "Show Users",
+                                text = "Show Machine",
                                 fontFamily = InriaSerif,
                                 fontWeight = FontWeight.Bold,
                                 color = colorResource(id = R.color.GWGreen)
